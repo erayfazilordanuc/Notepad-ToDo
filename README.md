@@ -10,11 +10,15 @@
  - Spring Boot
  - PostgreSQL
 
-![IMG-20250222-WA0014](https://github.com/user-attachments/assets/3cd32733-7951-40c5-8aa1-8fc50ab32fed)
 
+Login Screen
+![IMG-20250222-WA0016](https://github.com/user-attachments/assets/72153bd8-76de-4bce-96f3-bf937a33c446)
 
-![IMG-20250222-WA0017](https://github.com/user-attachments/assets/e5094af0-a3af-4dd8-acc0-19048dfe4cd7)
-![IMG-20250222-WA0018](https://github.com/user-attachments/assets/9f08dd36-7f3a-4c76-a40c-e5d668626205)
-![IMG-20250222-WA0020](https://github.com/user-attachments/assets/23c890e4-4496-48fa-800b-91963f1fd789)
-![IMG-20250222-WA0014](https://github.com/user-attachments/assets/96c21a4a-d597-4aee-9211-9b63cc23ca7e)
-![IMG-20250222-WA0019](https://github.com/user-attachments/assets/7c0d9217-943a-41cb-92f6-69365fd6b4cd)
+Notes Screen
+![IMG-20250222-WA0017](https://github.com/user-attachments/assets/ca5d4eb2-d5ae-41ea-867c-47d80dbd2c84)
+![IMG-20250222-WA0018](https://github.com/user-attachments/assets/8f36b25b-d9a5-49ca-b1d8-55a9af3cd811)
+![IMG-20250222-WA0020](https://github.com/user-attachments/assets/5f550a4a-6a5b-4e56-9032-31cb0f3f0d81)
+![IMG-20250222-WA0014](https://github.com/user-attachments/assets/b84c40bf-80d0-45f1-a71f-e510f937b699)
+
+Settings Screen
+![IMG-20250222-WA0019](https://github.com/user-attachments/assets/7aa5dded-dfb9-455b-92f1-e7da764e695e)
