@@ -9,16 +9,16 @@
  - Java
  - Spring Boot
  - PostgreSQL
-
+   
    
 ### Login Screen
-<img src="https://github.com/user-attachments/assets/ad57ea72-b6f3-4420-8af0-397488152721" width="250" />
+<img src="https://github.com/user-attachments/assets/c3cefb01-e84c-41e2-b825-4b677dd7b107" width="250" />
 
 ### Notes Screen
-<img src="https://github.com/user-attachments/assets/b2de683a-658c-4966-af79-780bc053b980" width="250" />
-<img src="https://github.com/user-attachments/assets/1f94afde-fb84-48c2-984e-225ad3d5cb75" width="250" />
-<img src="https://github.com/user-attachments/assets/836206ce-24c9-4f32-895e-e911a8add2eb" width="250" />
-<img src="https://github.com/user-attachments/assets/76194c7d-d15d-4f61-a248-2b8c33d4c03c" width="250" />
+<img src="https://github.com/user-attachments/assets/3104a658-fbcd-415f-9b16-c6841b0f9468" width="250" />
+<img src="https://github.com/user-attachments/assets/3235b855-659e-4f52-b1eb-047caefdddb1" width="250" />
+<img src="https://github.com/user-attachments/assets/fafd2e00-7803-4c2a-a968-52b104fc2730" width="250" />
+<img src="https://github.com/user-attachments/assets/2f044326-8b4a-4933-b795-ea82b7fbeaae" width="250" />
 
 ### Settings Screen
-<img src="https://github.com/user-attachments/assets/0bf718ec-03ab-4acc-8b76-612d4e289cb4" width="250" />
+<img src="https://github.com/user-attachments/assets/68e3cd01-f11f-47aa-904b-d014ba2c76aa" width="250" />
