@@ -1,0 +1,45 @@
+# spring:
+#   dockercompose:
+#     lifecycle-management: start_and_stop
+
+#   jpa:
+#     generate-ddl: true
+#     hibernate:
+#       ddl-auto: create-drop
+#     show-sql: true
+
+# server:
+#   port: 8080
+
+spring:
+  application:
+    name: Notepad To Do
+  datasource:
+    # password: Bismillah
+    url: jdbc:postgresql://localhost:5432/notepad
+    username: postgres
+  # cache:
+  #   type: redis
+  # data:
+  #   redis:
+  #     host: localhost
+  #     port: 6379
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    jwt: DEBUG
+    org:
+      hibernate:
+        sql: debug
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace
+      springframework:
+        web: debug
+        security: TRACE
+        transaction: debug
