@@ -21,5 +21,8 @@
 <img src="https://github.com/user-attachments/assets/90f38157-d279-4e6a-af77-0436e8acdf8e" width="250" />
 <img src="https://github.com/user-attachments/assets/2f044326-8b4a-4933-b795-ea82b7fbeaae" width="250" />
 
+### Note Screen
+<img src="https://github.com/user-attachments/assets/9bcb25a8-7567-4f4d-8fb7-54595aa6504f" width="250" />
+
 ### Settings Screen
 <img src="https://github.com/user-attachments/assets/68e3cd01-f11f-47aa-904b-d014ba2c76aa" width="250" />
