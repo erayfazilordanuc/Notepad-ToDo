@@ -24,6 +24,7 @@ import NoResults from '../../components/NoResults';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {addEventListener} from '@react-native-community/netinfo';
 import SortOption from './components/SortOption';
+import MasonryList from '@react-native-seoul/masonry-list';
 
 function Notes() {
   const navigation = useNavigation<NotesScreenNavigationProp>();
@@ -191,54 +192,59 @@ function Notes() {
   //   return <SearchBar search={search} setSearch={setSearch} />;
   // }, [search]);
 
+  type MasonryListProps = {
+    item: Note;
+    i: number;
+  };
+
   return (
     <SafeAreaView className="h-full bg-white px-1">
-      {/* Layout değiştirme özelliği eklenecek */}
-      {/* Satır modu 2liyken satır elemanlarının yüksekliği eşitlenmesin */}
-      {/* TO DO ERROR Flat list search barın arkasına geçiyor */}
-      <FlatList
-        className="px-5"
+      <MasonryList
+      className="px-3"
         data={notesToShow}
         numColumns={layoutMode === 1 ? 1 : 2}
         key={layoutMode === 1 ? 'layout1' : 'layout2'}
         renderItem={({item}) => (
-          <NoteCard
-            note={item}
-            isEditMode={isEditMode}
-            allSelected={allSelected}
-            onPress={() => {
-              if (!isEditMode) {
-                handleNoteCardPress(item.id!);
-                return false;
-              } else {
-                if (!item.id) {
-                  return false;
-                }
-                if (idsToDelete.includes(item.id)) {
-                  setIdsToDelete(idsToDelete.filter(id => id !== item.id));
+          <View className="px-2">
+            <NoteCard
+              note={item}
+              isEditMode={isEditMode}
+              allSelected={allSelected}
+              onPress={() => {
+                if (!isEditMode) {
+                  handleNoteCardPress((item as Note).id!);
                   return false;
                 } else {
-                  setIdsToDelete([...idsToDelete, item.id]);
-                  return true;
+                  if (!(item as Note).id) {
+                    return false;
+                  }
+                  if (idsToDelete.includes((item as Note).id)) {
+                    setIdsToDelete(
+                      idsToDelete.filter(id => id !== (item as Note).id),
+                    );
+                    return false;
+                  } else {
+                    setIdsToDelete([...idsToDelete, (item as Note).id]);
+                    return true;
+                  }
                 }
-              }
-            }}
-            onLongPress={(id: number) => {
-              setIsEditMode(true);
-              setIdsToDelete(prev => [...prev, id]);
-            }}
-          />
+              }}
+              onLongPress={(id: number) => {
+                setIsEditMode(true);
+                setIdsToDelete(prev => [...prev, id]);
+              }}
+            />
+          </View>
         )}
         keyExtractor={item => String(item.id)}
         contentContainerClassName="pb-32"
         showsVerticalScrollIndicator={false}
-        columnWrapperClassName={`${layoutMode === 1 ? '' : 'flex gap-5'}`}
+        // columnWrapperClassName={`${layoutMode === 1 ? '' : 'flex gap-5'}`}
         ListEmptyComponent={<NoResults />}
-        ListHeaderComponent={() => (
+        ListHeaderComponent={
           <View className="px-5 mt-20">
             {isEditMode && (
               <View className="flex flex-row items-center justify-center mt-5">
-                {/* TO DO Burada tüm notları seçme özelliği gelsin */}
                 <TouchableOpacity
                   className="border border-primary-200 py-2 pb-3 bg-blue-50 shadow-md shadow-zinc-350 rounded-full w-1/3"
                   onPress={handleSelectAll}>
@@ -249,7 +255,7 @@ function Notes() {
               </View>
             )}
           </View>
-        )}
+        }
       />
 
       <Modal visible={sortModalVisible} transparent={true} animationType="fade">
@@ -286,13 +292,6 @@ function Notes() {
                 setSortType={setSortType}
                 setSortModalVisible={setSortModalVisible}
               />
-              {/* <TouchableOpacity
-                className="border-t border-primary-300 pt-2 pb-1 px-3"
-                onPress={() => {
-                  setSortModalVisible(false);
-                }}>
-                <Text className="text-lg text-gray-500">Cancel</Text>
-              </TouchableOpacity> */}
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -344,17 +343,19 @@ function Notes() {
         </View>
       </View>
 
-      <View className="absolute bottom-20 right-5">
-        <TouchableOpacity
-          className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-zinc-400"
-          onPress={handleCreateNote}>
-          <Text className="text-3xl font-rubik-bold text-white">+</Text>
-        </TouchableOpacity>
-      </View>
+      {!isEditMode && (
+        <View className="absolute bottom-20 right-5">
+          <TouchableOpacity
+            className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-zinc-400"
+            onPress={handleCreateNote}>
+            <Text className="text-3xl font-rubik-bold text-white">+</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {isEditMode && (
-        <View className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white rounded-full">
-          <View className="w-40 bg-white rounded-full border border-primary-100 p-3">
+        <View className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-primary-200 rounded-full">
+          <View className="w-36 bg-white rounded-full border border-primary-100 p-3">
             <TouchableOpacity
               onPress={() => {
                 Alert.alert('Are you sure to delete?', '', [

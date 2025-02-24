@@ -53,6 +53,8 @@ import sortArrowUp from '../assets/icons/sortArrowUp.png';
 import sortArrowDown from '../assets/icons/sortArrowDown.png';
 import sortArrowUpSelected from '../assets/icons/sortArrowUpSelected.png';
 import sortArrowDownSelected from '../assets/icons/sortArrowDownSelected.png';
+import heartV2 from '../assets/icons/heartV2.png';
+import heartRedV2 from '../assets/icons/heartRedV2.png';
 
 export default {
   google,
@@ -110,4 +112,6 @@ export default {
   sortArrowDown,
   sortArrowUpSelected,
   sortArrowDownSelected,
+  heartV2,
+  heartRedV2,
 };

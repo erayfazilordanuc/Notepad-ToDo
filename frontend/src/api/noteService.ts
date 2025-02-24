@@ -89,8 +89,6 @@ export const getNotesByAuthorId = async (
         new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime()
       );
     });
-
-    console.log('sorted', notes);
   }
 
   return notes;
@@ -183,7 +181,7 @@ export const deleteNotesByIds = async (
   const userData = await AsyncStorage.getItem('user');
   const user: User = JSON.parse(userData!);
 
-  if (userOnline && user.id !== 0) {
+  if (userOnline && user.id! > 0) {
     await apiClient.delete(`/note`, {data: ids});
   }
 

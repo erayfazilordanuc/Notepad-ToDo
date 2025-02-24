@@ -10,8 +10,6 @@ interface NoteProps {
   onLongPress: (id: number) => void;
 }
 
-
-
 const Note = ({
   note,
   isEditMode,
@@ -86,9 +84,25 @@ const Note = ({
               : note.content}
           </Text>
         )}
+
+        <Text className="text-sm font-rubik text-black-200 leading-4 text-right mt-3">
+          {/* TO DO burada dil seçimine göre format değişmeli */}
+          {new Date(note.updatedAt!).toLocaleDateString('en-EN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 };
 
 export default Note;
+
+// Year: {String(new Date(note.createdAt!).getFullYear())}
+// Month: {String(new Date(note.createdAt!).getMonth())}
+// Day: {String(new Date(note.createdAt!).getDay())}

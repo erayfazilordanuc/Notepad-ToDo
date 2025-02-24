@@ -38,6 +38,8 @@ const Note = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const [showDetails, setShowDetails] = useState(false);
+
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const windowHeight = Dimensions.get('window').height;
@@ -94,9 +96,8 @@ const Note = () => {
               {/* Basıldığında kırmızı olsun */}
               {/* Seçeneklerin içine taşınabilir */}
               <Image
-                source={isFavorite ? icons.heart : icons.heartRed}
+                source={isFavorite ? icons.heartRedV2 : icons.heartV2}
                 className="size-7"
-                tintColor={'#191D31'}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -114,41 +115,106 @@ const Note = () => {
         </View>
 
         <Modal visible={isModalVisible} transparent={true} animationType="fade">
-          <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
+          <TouchableWithoutFeedback
+            onPress={event => {
+              if (event.target === event.currentTarget) {
+                setIsModalVisible(false);
+                setShowDetails(false);
+              }
+            }}>
             <View className="flex-1 justify-start items-end p-5">
-              <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-100 p-2">
-                <TouchableOpacity
-                  onPress={() => {
-                    Alert.alert('Are you sure to delete?', '', [
-                      {
-                        text: 'Cancel',
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Yes',
-                        onPress: async () => {
-                          setIsModalVisible(false);
-                          deleteNoteById(note!.id!, userOnline);
-                          navigation.navigate('Notes');
-                          // Not goBack in order to refresh the notes
-                          // It triggers useEffect()
+              <View className="flex flex-row items-start">
+                {showDetails && (
+                  <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-100 p-2">
+                    <Text
+                      selectable
+                      className="text-lg font-rubik p-2 text-center pb-2">
+                      Id: {note!.id}
+                    </Text>
+                    <Text
+                      selectable
+                      className="text-lg font-rubik p-2 text-center pb-2">
+                      Creation:
+                      {'\n'}
+                      {new Date(note!.createdAt!).toLocaleTimeString('en-EN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false,
+                      })}
+                      {'\n'}
+                      {new Date(note!.createdAt!).toLocaleDateString('en-EN', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </Text>
+
+                    <Text
+                      selectable
+                      className="text-lg font-rubik p-2 text-center">
+                      Last Update:
+                      {'\n'}
+                      {new Date(note!.updatedAt!).toLocaleTimeString('en-EN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false,
+                      })}
+                      {'\n'}
+                      {new Date(note!.updatedAt!).toLocaleDateString('en-EN', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </Text>
+                  </View>
+                )}
+                <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-100 p-2">
+                  <TouchableOpacity
+                    onPress={() => {
+                      Alert.alert('Are you sure to delete?', '', [
+                        {
+                          text: 'Cancel',
+                          style: 'cancel',
                         },
-                      },
-                    ]);
-                  }}>
-                  <Text className="text-lg font-rubik text-danger p-2 text-center pb-2">
-                    Delete
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className=" border-primary-200"
-                  onPress={() => {
-                    setIsModalVisible(false);
-                  }}>
-                  <Text className="text-lg font-rubik p-2 text-center">
-                    Close
-                  </Text>
-                </TouchableOpacity>
+                        {
+                          text: 'Yes',
+                          onPress: async () => {
+                            setIsModalVisible(false);
+                            deleteNoteById(note!.id!, userOnline);
+                            navigation.navigate('Notes');
+                            // Dont goBack in order to refresh the notes because It doesnt trigger useEffect()
+                          },
+                        },
+                      ]);
+                    }}>
+                    <Text className="text-lg font-rubik text-danger p-2 text-center pb-2">
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className=" border-primary-200"
+                    onPress={() => {
+                      setShowDetails(!showDetails);
+                    }}>
+                    <Text className="text-lg font-rubik p-2 text-center">
+                      Details
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className=" border-primary-200"
+                    onPress={() => {
+                      setIsModalVisible(false);
+                      setShowDetails(false);
+                    }}>
+                    <Text className="text-lg font-rubik p-2 text-center">
+                      Close
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </TouchableWithoutFeedback>
