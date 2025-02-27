@@ -13,6 +13,8 @@ const SearchBar = ({
       <View className=" flex flex-row items-center justify-start z-50">
         <Image source={icons.search} className="size-5" />
         <TextInput
+          placeholderTextColor={'gray'}
+          selectionColor={'#7AADFF'}
           value={search}
           onChangeText={(value: string) => {
             setSearch(value);

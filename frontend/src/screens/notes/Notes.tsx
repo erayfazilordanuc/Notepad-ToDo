@@ -9,6 +9,7 @@ import {
   FlatList,
   TouchableWithoutFeedback,
   Modal,
+  Keyboard,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {Button} from '@react-navigation/elements';
@@ -84,7 +85,7 @@ function Notes() {
       const user: User = JSON.parse(userData!);
       setUser(user);
 
-      // Info: it isnt possible to use fetchUser and fetchNotes together because of the async user object
+      // Info: it isn't possible to use fetchUser and fetchNotes together because of the async user object
       // Also fetchUser cant return user to use in useEffect because async operations are not allowed in useEffect
 
       const notesData = await getNotesByAuthorId(user!.id!, userOnline);
@@ -97,28 +98,28 @@ function Notes() {
 
   const fetchNotes = async () => {
     if (notesToShow) {
-      if (userOnline) {
-        const notes = await getNotesByAuthorId(user!.id!, userOnline);
-        setAllNotes(notes!);
-        setNotesToShow(notes!);
-      } else {
-        const jsonNotes = await AsyncStorage.getItem('notes');
-        const notes: Note[] = JSON.parse(jsonNotes!);
-        setAllNotes(notes!);
-        setNotesToShow(notes!);
+      const notes = await getNotesByAuthorId(user!.id!, userOnline);
+
+      const sortedNotes = [...notes].sort((a: Note, b: Note) => a.id - b.id);
+      const sortedAllNotes = [...allNotes].sort(
+        (a: Note, b: Note) => a.id - b.id,
+      );
+
+      if (JSON.stringify(sortedNotes) === JSON.stringify(sortedAllNotes)) {
+        return;
       }
+
+      setSortType(SortType.DATE_DESCENDING);
+
+      setAllNotes(notes!);
+      setNotesToShow(notes!);
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchNotes();
-    }, [user]),
-  );
-
-  useEffect(() => {
+  useFocusEffect(() => {
+    // useCallback has caused some asynchronous issues
     fetchNotes();
-  }, []);
+  });
 
   useEffect(() => {
     if (search && search.length > 0) {
@@ -139,9 +140,9 @@ function Notes() {
     }
   }, [search]);
 
-  useEffect(() => {
-    const sortedNotes = [...notesToShow].sort((a: Note, b: Note) => {
-      switch (sortType) {
+  const sortNotes = (notes: Note[], sortTypeParam?: SortType) => {
+    notes.sort((a: Note, b: Note) => {
+      switch (sortTypeParam ? sortTypeParam : sortType) {
         case SortType.DATE_ASCENDING:
           return (
             new Date(a.updatedAt!).getTime() - new Date(b.updatedAt!).getTime()
@@ -155,19 +156,31 @@ function Notes() {
         case SortType.ALPHABETICAL_DESCENDING:
           return b.title.localeCompare(a.title);
         case SortType.LENGTH_ASCENDING:
-          return a.content.length - b.content.length;
+          return (
+            a.title.length +
+            a.content.length -
+            (b.title.length + b.content.length)
+          );
         case SortType.LENGTH_DESCENDING:
-          return b.content.length - a.content.length;
-        // case SortType.FAVORITE_FIRST:
-        //   return (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);
-        // case SortType.FAVORITE_LAST:
-        //   return (a.isFavorite ? 1 : 0) - (b.isFavorite ? 1 : 0);
+          return (
+            b.title.length +
+            b.content.length -
+            (a.title.length + a.content.length)
+          );
+        case SortType.FAVORITE_FIRST:
+          return (b.isFavorited ? 1 : 0) - (a.isFavorited ? 1 : 0);
+        case SortType.FAVORITE_LAST:
+          return (a.isFavorited ? 1 : 0) - (b.isFavorited ? 1 : 0);
         default:
           return 0;
       }
     });
 
-    setNotesToShow(sortedNotes);
+    setNotesToShow(notes);
+  };
+
+  useEffect(() => {
+    sortNotes(notesToShow);
   }, [sortType]);
 
   const handleSelectAll = () => {
@@ -192,16 +205,17 @@ function Notes() {
   //   return <SearchBar search={search} setSearch={setSearch} />;
   // }, [search]);
 
-  type MasonryListProps = {
-    item: Note;
-    i: number;
-  };
-
   return (
     <SafeAreaView className="h-full bg-white px-1">
       <MasonryList
-      className="px-3"
+        className="self-stretch px-3"
         data={notesToShow}
+        onRefresh={() => {
+          setSearch('');
+          setSortType(SortType.DATE_DESCENDING);
+          sortNotes(notesToShow, SortType.DATE_DESCENDING);
+          Keyboard.dismiss();
+        }}
         numColumns={layoutMode === 1 ? 1 : 2}
         key={layoutMode === 1 ? 'layout1' : 'layout2'}
         renderItem={({item}) => (
@@ -210,6 +224,7 @@ function Notes() {
               note={item}
               isEditMode={isEditMode}
               allSelected={allSelected}
+              searchValue={search}
               onPress={() => {
                 if (!isEditMode) {
                   handleNoteCardPress((item as Note).id!);
@@ -239,7 +254,6 @@ function Notes() {
         keyExtractor={item => String(item.id)}
         contentContainerClassName="pb-32"
         showsVerticalScrollIndicator={false}
-        // columnWrapperClassName={`${layoutMode === 1 ? '' : 'flex gap-5'}`}
         ListEmptyComponent={<NoResults />}
         ListHeaderComponent={
           <View className="px-5 mt-20">
@@ -292,6 +306,14 @@ function Notes() {
                 setSortType={setSortType}
                 setSortModalVisible={setSortModalVisible}
               />
+              <SortOption
+                title={'Favorite'}
+                sortType={sortType}
+                sortTypeASC={SortType.FAVORITE_FIRST}
+                sortTypeDESC={SortType.FAVORITE_LAST}
+                setSortType={setSortType}
+                setSortModalVisible={setSortModalVisible}
+              />
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -299,24 +321,24 @@ function Notes() {
 
       <View className="absolute bottom px-5 py-5 bg-opacity-100 bg-white">
         <View className="flex flex-row justify-center items-center">
-          <View className="flex flex-row items-center rounded-full px-3 h-12 bg-primary-100 border border-primary-200 ml-4">
-            <TouchableOpacity
-              className=""
-              onPress={() => {
-                setSortModalVisible(!sortModalVisible);
-              }}>
-              <Image source={icons.sort} className="size-5" />
-            </TouchableOpacity>
-          </View>
-          <View className="flex flex-row items-center justify-between w-2/3 px-4 rounded-full bg-primary-100 border border-primary-200 ml-2">
+          <TouchableOpacity
+            className="flex flex-row items-center rounded-full px-3 h-12 bg-primary-200 border border-primary-250 ml-4"
+            onPress={() => {
+              setSortModalVisible(!sortModalVisible);
+            }}>
+            <Image source={icons.sort} className="size-5" />
+          </TouchableOpacity>
+          <View className="flex flex-row items-center justify-between w-2/3 px-4 rounded-full bg-primary-200 border border-primary-250 ml-2">
             <View className="flex-1 flex flex-row items-center justify-start z-50">
               <Image source={icons.search} className="size-5" />
               <TextInput
+                selectionColor={'#7AADFF'}
+                placeholderTextColor={'gray'}
+                placeholder="Search for notes"
                 value={search}
                 onChangeText={(value: string) => {
                   setSearch(value);
                 }}
-                placeholder="Search for notes"
                 className="text-sm font-rubik text-black-300 ml-2 flex-1 mt-1 h-12"
               />
             </View>
@@ -324,22 +346,20 @@ function Notes() {
           </View>
 
           {/* TO DO ERROR çok item olunca tek elemanlı satırda bug oluşutyor*/}
-          <View className="flex flex-row items-center rounded-full px-3 h-12 bg-primary-100 border border-primary-200 ml-2">
-            <TouchableOpacity
-              className=""
-              onPress={() => {
-                if (layoutMode === 1) {
-                  setLayoutMode(2);
-                } else {
-                  setLayoutMode(1);
-                }
-              }}>
-              <Image
-                source={layoutMode == 1 ? icons.layout1 : icons.layout2}
-                className="size-6"
-              />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            className="flex flex-row items-center rounded-full px-3 h-12 bg-primary-200 border border-primary-250 ml-2"
+            onPress={() => {
+              if (layoutMode === 1) {
+                setLayoutMode(2);
+              } else {
+                setLayoutMode(1);
+              }
+            }}>
+            <Image
+              source={layoutMode == 1 ? icons.layout1 : icons.layout2}
+              className="size-6"
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -348,7 +368,7 @@ function Notes() {
           <TouchableOpacity
             className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-zinc-400"
             onPress={handleCreateNote}>
-            <Text className="text-3xl font-rubik-bold text-white">+</Text>
+            <Text className="text-3xl text-white">+</Text>
           </TouchableOpacity>
         </View>
       )}

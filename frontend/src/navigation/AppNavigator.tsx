@@ -15,7 +15,7 @@ import {BottomNavigator} from './BottomNavigation';
 import Settings from '../screens/settings/Settings';
 import icons from '../constants/icons';
 import Security from '../screens/settings/Security';
-import Notifications from '../screens/settings/Notifications';
+import Notifications from '../screens/settings/Reminders';
 import Language from '../screens/settings/Language';
 import Preferences from '../screens/settings/Preferences';
 

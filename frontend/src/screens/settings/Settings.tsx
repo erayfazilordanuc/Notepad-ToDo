@@ -17,6 +17,8 @@ import {logout} from '../../api/authService';
 import {getUser} from '../../api/userService';
 import icons from '../../constants/icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Avatar} from 'react-native-elements';
+import CustomAvatar from './components/CustomAvatar';
 
 interface SettingsItemProps {
   icon: ImageSourcePropType;
@@ -65,41 +67,28 @@ const Settings = () => {
   }, []);
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Are you sure to logout?',
-      'You may lose your notes if you dont have an account',
-      [
-        {
-          text: 'Yes',
-          onPress: async () => {
-            await logout();
-            appNavigation.navigate('Launch');
-          },
+    Alert.alert('Are you sure to logout?', '', [
+      {
+        text: 'Yes',
+        onPress: async () => {
+          await logout();
+          appNavigation.navigate('Launch');
         },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-      ],
-    );
+      },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+    ]);
   };
 
   return (
-    <SafeAreaView className="h-full bg-primary-200 pb-32 px-7">
-      <View className="flex flex-row justify-center mt-5 mb-48 ">
-        <View className="flex flex-col items-center relative mt-5">
-          {
-            /* <Image
-            // source={{uri: 'default-image-url'}}
-            /* source={{uri: user?.photoURL || 'default-image-url'}} */
-            // TO DO kullanıcı profil foto ekleme özelliği eklenebilir
-            // className="size-44 relative rounded-full"> */
-          }
-          <Text className="text-2xl font-rubik-bold">{user?.username}</Text>
-        </View>
+    <SafeAreaView className="h-full bg-white pb-32 px-7">
+      <View className="mt-24">
+        <CustomAvatar username={user?.username} isUsernameShown={true} />
       </View>
 
-      <View className="flex flex-col mt-10">
+      <View className="flex flex-col mt-16">
         <SettingsItem
           icon={icons.person}
           title={'Profile'}
@@ -108,17 +97,17 @@ const Settings = () => {
           }}
         />
         <SettingsItem
-          icon={icons.settings}
+          icon={icons.preferences}
           title={'Preferences'}
           onPress={() => {
             navigation.navigate('Preferences');
           }}
         />
         <SettingsItem
-          icon={icons.bell}
-          title={'Notifications'}
+          icon={icons.reminder}
+          title={'Reminders'}
           onPress={() => {
-            navigation.navigate('Notifications');
+            navigation.navigate('Reminders');
           }}
         />
         <SettingsItem
@@ -135,16 +124,15 @@ const Settings = () => {
             navigation.navigate('Language');
           }}
         />
-      </View>
-
-      <View className="flex flex-col border-t mt-5 pt-5 border-primary-200">
-        <SettingsItem
-          icon={icons.logout}
-          title="Logout"
-          textStyle="text-danger"
-          showArrow={false}
-          onPress={handleLogout}
-        />
+        <View className="ml-1 border-t mt-5 pt-5  border-primary-300">
+          <SettingsItem
+            icon={icons.logout}
+            title="Logout"
+            textStyle="text-danger"
+            showArrow={false}
+            onPress={handleLogout}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );

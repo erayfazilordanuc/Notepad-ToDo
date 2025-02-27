@@ -42,7 +42,7 @@ const CustomHeader = ({
             </TouchableOpacity>
           </View>
         )}
-        <Text className="text-xl font-rubik-bold mr-2">{title}</Text>
+        <Text className="text-xl font-rubik-semibold mr-2">{title}</Text>
         <Image source={icon} className="size-6 mb-1" />
       </View>
     </SafeAreaView>

@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -30,6 +31,8 @@ const Note = () => {
 
   const [userOnline, setUserOnline] = useState(false);
 
+  const [prevNote, setPrevNote] = useState<Note | null>(null);
+
   const {noteId} = route.params as {noteId: number};
 
   const [note, setNote] = useState<Note | null>(null);
@@ -40,15 +43,20 @@ const Note = () => {
 
   const [showDetails, setShowDetails] = useState(false);
 
+  const [isReminderEnabled, setIsReminderEnabled] = useState(false);
+
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const windowHeight = Dimensions.get('window').height;
+
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
     if (noteId) {
       const fetchNote = async () => {
         const note = await getNote(noteId, userOnline);
         setNote(note);
+        setPrevNote(note);
       };
 
       fetchNote();
@@ -56,6 +64,7 @@ const Note = () => {
       const fetchNote = async () => {
         const note = await createNote(userOnline);
         setNote(note);
+        setPrevNote(note);
       };
 
       fetchNote();
@@ -63,16 +72,47 @@ const Note = () => {
   }, []);
 
   useEffect(() => {
-    if (note) {
-      const notePayload: NoteRequestPayload = {
-        title: note.title,
-        content: note.content,
-        authorId: note.authorId,
-      };
+    if (!note) return;
 
-      updateNote(note.id!, notePayload, userOnline);
+    if (
+      note.title === prevNote?.title &&
+      note.content === prevNote?.content &&
+      note.isFavorited === prevNote?.isFavorited
+    ) {
+      return;
     }
+
+    const notePayload: NoteRequestPayload = {
+      title: note.title,
+      content: note.content,
+      authorId: note.authorId,
+      isFavorited: note.isFavorited,
+    };
+
+    updateNote(note.id!, notePayload, userOnline);
+    setPrevNote(note);
   }, [note]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      event => {
+        setKeyboardHeight(event.endCoordinates.height);
+      },
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   return (
     <TouchableWithoutFeedback
@@ -92,11 +132,20 @@ const Note = () => {
           <View className="flex flex-row justify center">
             <TouchableOpacity
               className="flex flex-row items-center mr-3"
-              onPress={() => setIsFavorite(!isFavorite)}>
+              onPress={() => {
+                setNote(prev =>
+                  prev
+                    ? {
+                        ...prev,
+                        isFavorited: !prev.isFavorited,
+                      }
+                    : null,
+                );
+              }}>
               {/* Basıldığında kırmızı olsun */}
               {/* Seçeneklerin içine taşınabilir */}
               <Image
-                source={isFavorite ? icons.heartRedV2 : icons.heartV2}
+                source={note?.isFavorited ? icons.favorited : icons.favorite}
                 className="size-7"
               />
             </TouchableOpacity>
@@ -107,7 +156,7 @@ const Note = () => {
               }}>
               <Image
                 source={icons.dots}
-                className="size-7"
+                className="size-8"
                 tintColor={'#191D31'}
               />
             </TouchableOpacity>
@@ -124,17 +173,30 @@ const Note = () => {
             }}>
             <View className="flex-1 justify-start items-end p-5">
               <View className="flex flex-row items-start">
-                {showDetails && (
-                  <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-100 p-2">
+                {isReminderEnabled && (
+                  <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-200 p-2">
                     <Text
                       selectable
-                      className="text-lg font-rubik p-2 text-center pb-2">
-                      Id: {note!.id}
+                      className="text-lg font-rubik p-2 text-center pb-1">
+                      <Text className="text-lg font-rubik-semibold">Id: </Text>
+                      {note!.id}
+                    </Text>
+                  </View>
+                )}
+                {showDetails && (
+                  <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-200 p-2">
+                    <Text
+                      selectable
+                      className="text-lg font-rubik p-2 text-center pb-1">
+                      <Text className="text-lg font-rubik-semibold">Id: </Text>
+                      {note!.id}
                     </Text>
                     <Text
                       selectable
                       className="text-lg font-rubik p-2 text-center pb-2">
-                      Creation:
+                      <Text className="text-lg font-rubik-semibold">
+                        Creation:
+                      </Text>
                       {'\n'}
                       {new Date(note!.createdAt!).toLocaleTimeString('en-EN', {
                         hour: '2-digit',
@@ -154,7 +216,9 @@ const Note = () => {
                     <Text
                       selectable
                       className="text-lg font-rubik p-2 text-center">
-                      Last Update:
+                      <Text className="text-lg font-rubik-semibold">
+                        Last Update:
+                      </Text>
                       {'\n'}
                       {new Date(note!.updatedAt!).toLocaleTimeString('en-EN', {
                         hour: '2-digit',
@@ -172,7 +236,27 @@ const Note = () => {
                     </Text>
                   </View>
                 )}
-                <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-100 p-2">
+                <View className="z-50 bg-white shadow-lg rounded-xl border border-primary-200 p-2">
+                  <TouchableOpacity
+                    className=" border-primary-200"
+                    onPress={() => {
+                      setIsReminderEnabled(!isReminderEnabled);
+                      setShowDetails(false);
+                    }}>
+                    <Text className="text-lg font-rubik p-2 text-center">
+                      Reminder
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className=" border-primary-200"
+                    onPress={() => {
+                      setShowDetails(!showDetails);
+                      setIsReminderEnabled(false);
+                    }}>
+                    <Text className="text-lg font-rubik p-2 text-center">
+                      Details
+                    </Text>
+                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
                       Alert.alert('Are you sure to delete?', '', [
@@ -195,16 +279,7 @@ const Note = () => {
                       Delete
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    className=" border-primary-200"
-                    onPress={() => {
-                      setShowDetails(!showDetails);
-                    }}>
-                    <Text className="text-lg font-rubik p-2 text-center">
-                      Details
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     className=" border-primary-200"
                     onPress={() => {
                       setIsModalVisible(false);
@@ -213,57 +288,53 @@ const Note = () => {
                     <Text className="text-lg font-rubik p-2 text-center">
                       Close
                     </Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
             </View>
           </TouchableWithoutFeedback>
         </Modal>
 
-        {/* <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        > */}
-        <KeyboardAvoidingView
-          contentContainerClassName="bg-white"
-          contentContainerStyle={{flexGrow: 1, paddingBottom: 200}} // Important for content to fill screen
-        >
-          {/* <View className="pb-32 bg-white"> */}
-          <View
-            className="flex-col px-4 pr-7 pb-32 pt-4"
-            style={{
-              height: windowHeight,
-              paddingBottom: isKeyboardVisible
-                ? (windowHeight * 52) / 100
-                : 100,
-            }}>
-            <TextInput
-              value={note?.title}
-              onChangeText={value => {
-                setNote(prev => (prev ? {...prev, title: value} : null));
-              }}
-              placeholder="Title"
-              className="text-wrap text-2xl font-rubik ml-2 text-left border-b border-primary-200 pb-2"
-              multiline
-              textAlignVertical="top"
-              scrollEnabled={false}
-              maxLength={100}
-            />
-            <TextInput
-              value={note?.content}
-              onChangeText={value => {
-                setNote(prev => (prev ? {...prev, content: value} : null));
-              }}
-              placeholder="Note"
-              className="leading-6 text-wrap text-xl font-rubik ml-2 flex-1 text-left pt-3"
-              multiline
-              textAlignVertical="top"
-              maxLength={10000}
-            />
-          </View>
-          {/* </View> */}
-        </KeyboardAvoidingView>
-        {/* </KeyboardAvoidingView> */}
+        <View
+          style={{
+            flexDirection: 'column',
+            paddingHorizontal: 16,
+            paddingRight: 22,
+            paddingTop: 6,
+            backgroundColor: 'white',
+            height: windowHeight * 0.85,
+            paddingBottom: keyboardHeight,
+          }}>
+          <TextInput
+            placeholderTextColor={'gray'}
+            selectionColor={'#7AADFF'}
+            value={note?.title}
+            onChangeText={value => {
+              setNote(prev => (prev ? {...prev, title: value} : null));
+            }}
+            placeholder="Title"
+            className="text-wrap text-2xl font-rubik ml-2 text-left border-b border-primary-200 pb-2"
+            multiline
+            textAlignVertical="top"
+            scrollEnabled={false}
+            maxLength={100}
+            numberOfLines={3}
+          />
+          <TextInput
+            placeholderTextColor={'gray'}
+            selectionColor={'#7AADFF'}
+            value={note?.content}
+            onChangeText={value => {
+              setNote(prev => (prev ? {...prev, content: value} : null));
+            }}
+            placeholder="Note"
+            className="leading-6 text-wrap text-xl font-rubik ml-2 flex-1 text-left pt-3"
+            multiline
+            textAlignVertical="top"
+            maxLength={10000}
+            numberOfLines={250}
+          />
+        </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );

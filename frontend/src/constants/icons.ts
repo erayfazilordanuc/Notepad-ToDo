@@ -33,7 +33,7 @@ import location from '../assets/icons/location.png';
 import edit from '../assets/icons/edit.png';
 import notes from '../assets/icons/notes.png';
 import todo from '../assets/icons/todo.png';
-import options from '../assets/icons/options.png';
+import preferences from '../assets/icons/preferences.png';
 import settings from '../assets/icons/settings.png';
 import dots from '../assets/icons/dots.png';
 import arrow from '../assets/icons/arrow.png';
@@ -55,6 +55,9 @@ import sortArrowUpSelected from '../assets/icons/sortArrowUpSelected.png';
 import sortArrowDownSelected from '../assets/icons/sortArrowDownSelected.png';
 import heartV2 from '../assets/icons/heartV2.png';
 import heartRedV2 from '../assets/icons/heartRedV2.png';
+import reminder from '../assets/icons/reminder.png';
+import favorite from '../assets/icons/favorite.png';
+import favorited from '../assets/icons/favorited.png';
 
 export default {
   google,
@@ -92,7 +95,7 @@ export default {
   edit,
   notes,
   todo,
-  options,
+  preferences,
   settings,
   dots,
   arrow,
@@ -114,4 +117,7 @@ export default {
   sortArrowDownSelected,
   heartV2,
   heartRedV2,
+  reminder,
+  favorite,
+  favorited,
 };

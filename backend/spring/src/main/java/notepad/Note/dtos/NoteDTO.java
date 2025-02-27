@@ -14,4 +14,6 @@ public class NoteDTO {
     private String content;
 
     private Long authorId;
+
+    private Boolean isFavorited;
 }

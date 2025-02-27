@@ -45,6 +45,8 @@ public class Note {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    private Boolean isFavorited;
+
     @CreationTimestamp
     @Column(updatable = false)
     private Timestamp createdAt;

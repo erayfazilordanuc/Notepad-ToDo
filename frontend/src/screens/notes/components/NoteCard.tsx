@@ -3,9 +3,10 @@ import {useEffect, useState} from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 
 interface NoteProps {
-  note: Note;
+  note: Note | any;
   isEditMode: boolean;
   allSelected: boolean | false;
+  searchValue: string;
   onPress: () => boolean;
   onLongPress: (id: number) => void;
 }
@@ -14,11 +15,13 @@ const Note = ({
   note,
   isEditMode,
   allSelected,
+  searchValue,
   onPress,
   onLongPress,
 }: NoteProps) => {
   const MAX_TITLE_LENGTH = 41;
   const MAX_CONTENT_LENGTH = 75;
+  const EDIT_MODE_MAX_CONTENT_LENGTH = 41;
 
   const [isSelected, setIsSelected] = useState(false);
 
@@ -39,7 +42,7 @@ const Note = ({
 
   return (
     <TouchableOpacity
-      className="border border-primary-100 flex-1 w-full mt-4 px-3 py-4 rounded-2xl bg-white shadow-lg shadow-black-100/70 relative"
+      className="border border-primary-200 flex-1 w-full mt-4 px-3 py-4 rounded-2xl bg-white shadow-lg shadow-black-100/70 relative"
       onPress={handleOnPress}
       onLongPress={() => {
         onLongPress(note.id!);
@@ -57,7 +60,7 @@ const Note = ({
       <View className="flex flex-col">
         <View className="flex flex-row justify-between items-center">
           <Text
-            className={`text-base font-rubik-bold flex-shrink ${
+            className={`text-base font-rubik-medium flex-shrink ${
               note.title ? 'text-primary-300' : 'text-black-200'
             }`}>
             {note.title
@@ -71,19 +74,25 @@ const Note = ({
             <TouchableOpacity onPress={handleOnPress} className="ml-2">
               <Image
                 source={isSelected ? icons.checked : icons.unchecked}
-                className="size-6"
+                className="size-4"
               />
             </TouchableOpacity>
           )}
+
+          {note.isFavorited && (
+            <Image source={icons.favorited} className="size-5" />
+          )}
         </View>
 
-        {!isEditMode && (
-          <Text className="text-sm font-rubik text-black-200 leading-4">
-            {note.content.length > MAX_CONTENT_LENGTH
-              ? `${note.content.substring(0, MAX_CONTENT_LENGTH)}...`
-              : note.content}
-          </Text>
-        )}
+        <Text className="text-sm font-rubik text-black-200 leading-4">
+          {isEditMode
+            ? `${note.content.substring(0, EDIT_MODE_MAX_CONTENT_LENGTH)} ${
+                note.content.length > 0 ? '... ' : ''
+              }`
+            : note.content.length > MAX_CONTENT_LENGTH
+            ? `${note.content.substring(0, MAX_CONTENT_LENGTH)}...`
+            : note.content}
+        </Text>
 
         <Text className="text-sm font-rubik text-black-200 leading-4 text-right mt-3">
           {/* TO DO burada dil seçimine göre format değişmeli */}

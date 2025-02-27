@@ -52,10 +52,10 @@ const Security = () => {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-primary-200 pb-32 px-7">
+    <SafeAreaView className="flex-1 bg-white pb-32 px-7">
       <ScrollView className="p-2 mt-4">
         <View className="flex flex-row justify-start items-center mb-4">
-          <Text className="text-xl font-rubik-bold border-b border-primary-200 ">
+          <Text className="text-xl font-rubik-medium border-b border-primary-200 ">
             Id:{'  '}
           </Text>
           <Text selectable className="text-lg font-rubik">
@@ -64,14 +64,14 @@ const Security = () => {
         </View>
 
         <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">Username:{'  '}</Text>
+          <Text className="text-xl font-rubik-medium">Username:{'  '}</Text>
           <Text selectable className="text-lg font-rubik">
             {user?.username || 'N/A'}
           </Text>
         </View>
 
         <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">Email:{'  '}</Text>
+          <Text className="text-xl font-rubik-medium">Email:{'  '}</Text>
           <Text selectable className="text-lg font-rubik">
             {user?.email || 'N/A'}
           </Text>
@@ -79,7 +79,7 @@ const Security = () => {
 
         <View className=" mb-4 pb-3 border-b border-primary-200">
           <View className="flex flex-row justify-between">
-            <Text className="text-xl font-rubik-bold">Access Token: </Text>
+            <Text className="text-xl font-rubik-medium">Access Token: </Text>
             <TouchableOpacity
               onPress={() => setShowAccessToken(!showAccessToken)}
               className="mr-2">
@@ -99,14 +99,14 @@ const Security = () => {
         </View>
 
         <View className="mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">Refresh Token: </Text>
+          <Text className="text-xl font-rubik-medium">Refresh Token: </Text>
           <Text selectable className="text-md">
             {refreshToken ? refreshToken : 'N/A'}
           </Text>
         </View>
 
         <View className="mb-4 pb-4 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">
+          <Text className="text-xl font-rubik-medium">
             IPv4 Adress:{'  '}
             <Text selectable className="text-md font-rubik">
               {String(apiBaseUrl.match(/\d+\.\d+\.\d+\.\d+/))}
@@ -115,7 +115,7 @@ const Security = () => {
         </View>
 
         <View className="mb-4 pb-4 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">
+          <Text className="text-xl font-rubik-medium">
             Api Base Url:{'  '}
             <Text selectable className="text-md font-rubik">
               {apiBaseUrl}
@@ -124,7 +124,7 @@ const Security = () => {
         </View>
 
         {/* <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">
+          <Text className="text-xl font-rubik-medium">
             Account Enable:{'  '}
             <Text selectable className="text-md font-rubik">
               {(user as any).enabled || 'N/A'}
@@ -133,7 +133,7 @@ const Security = () => {
         </View> */}
 
         {/* <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">
+          <Text className="text-xl font-rubik-medium">
             Account Expired:{'  '}
             <Text selectable className="text-md font-rubik">
               {(user as any).accountNonExpired ? 'Yes' : 'No'}
@@ -142,7 +142,7 @@ const Security = () => {
         </View> */}
 
         {/* <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">
+          <Text className="text-xl font-rubik-medium">
             Token Expiration:{'  '}
             <Text selectable className="text-md font-rubik">
               {(user as any)?.stsTokenManager?.expirationTime
@@ -155,7 +155,7 @@ const Security = () => {
         </View> */}
 
         {/* <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">
+          <Text className="text-xl font-rubik-medium">
             Last Login: {'  '}
             <Text selectable className="text-md font-rubik">
               {(user as any)?.lastLoginAt
@@ -166,7 +166,7 @@ const Security = () => {
         </View> */}
 
         {/* <View className="flex flex-row justify-start items-center mb-4 pb-3 border-b border-primary-200">
-          <Text className="text-xl font-rubik-bold">Provider Data: </Text>
+          <Text className="text-xl font-rubik-medium">Provider Data: </Text>
           {user?.providerData?.map((provider, index) => (
             <Text selectable key={index} className="text-md">
               {JSON.stringify(provider, null, 2)}
@@ -175,8 +175,8 @@ const Security = () => {
         </View> */}
 
         <View className="mt-6 p-3 rounded-md">
-          <Text className="text-xl font-rubik-bold mb-2">Full User Data:</Text>
-          <Text selectable className="text-sm">
+          <Text className="text-xl font-rubik-medium mb-2">Full User Data:</Text>
+          <Text selectable className="text-lg">
             {JSON.stringify(user, null, 2)}
           </Text>
         </View>

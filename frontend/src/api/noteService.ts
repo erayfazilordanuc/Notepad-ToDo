@@ -13,7 +13,6 @@ export const createNote = async (
   userOnline: boolean,
   notePayload?: NoteRequestPayload,
 ): Promise<Note | null> => {
-  // guest olarak girenlerin user idsi local -> 15183115 diye başlasın ve devamı 1 2 3 gibi gitsin
   const userData = await AsyncStorage.getItem('user');
   const user: User = JSON.parse(userData!);
 
@@ -21,6 +20,7 @@ export const createNote = async (
     title: notePayload?.title || '',
     content: notePayload?.content || '',
     authorId: user.id,
+    isFavorited: false,
   };
 
   let note;
@@ -33,7 +33,7 @@ export const createNote = async (
     notes = [];
   }
 
-  // If user.id is bigger than 0 it is normal user but otherwise it is local guest user
+  // If user.id is bigger than 0 it is normal user otherwise it is local guest user
   if (userOnline && user.id! > 0) {
     const response = await apiClient.post(`/note`, newNotePayload);
 
@@ -52,6 +52,7 @@ export const createNote = async (
       title: newNotePayload.title,
       content: newNotePayload.content,
       authorId: newNotePayload.authorId,
+      isFavorited: newNotePayload.isFavorited,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -125,6 +126,7 @@ export const updateNote = async (
     title: notePayload!.title,
     content: notePayload!.content,
     authorId: user.id,
+    isFavorited: notePayload.isFavorited,
   };
 
   const jsonNotes = await AsyncStorage.getItem('notes');
@@ -143,6 +145,7 @@ export const updateNote = async (
       title: notePayload.title,
       content: notePayload.content,
       authorId: notePayload.authorId,
+      isFavorited: notePayload.isFavorited,
       createdAt: noteToUpdate!.createdAt,
       updatedAt: new Date(),
     };

@@ -4,12 +4,12 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 
 const Preferences = () => {
   return (
-    <SafeAreaView className="flex-1 bg-primary-200 pb-32 px-7">
+    <SafeAreaView className="flex-1 bg-white pb-32 px-7">
       <ScrollView className="p-2 mt-4">
         <View className="mb-4">
-          <Text className="text-lg font-rubik-bold border-b border-primary-200 pb-3">
+          <Text className="text-2xl font-rubik-medium border-b border-primary-200 pb-3">
             Theme:{'  '}
-            <Text selectable className="text-md font-rubik">
+            <Text selectable className="text-xl font-rubik">
               Default
             </Text>
           </Text>

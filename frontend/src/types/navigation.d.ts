@@ -7,7 +7,7 @@ type SettingsStackParamList = {
   Settings: undefined;
   Profile: undefined;
   Preferences: undefined;
-  Notifications: undefined;
+  Reminders: undefined;
   Security: undefined;
   Language: undefined;
 };

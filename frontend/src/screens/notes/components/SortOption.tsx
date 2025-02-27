@@ -34,7 +34,7 @@ const SortOption = ({
     <View className="flex flex-row justify-center items-center pt-2 pb-1">
       <TouchableOpacity
         onPress={() => {
-          if (title === 'Alphabetic') {
+          if (title === 'Alphabetic' || title === 'Favorite') {
             setSortType(sortTypeASC);
           } else {
             setSortType(sortTypeDESC);

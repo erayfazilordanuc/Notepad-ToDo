@@ -27,7 +27,7 @@ public class NoteService {
     public Note createNote(NoteDTO noteDTO) {
         User author = userRepo.findById(noteDTO.getAuthorId()).get();
 
-        Note newNote = new Note(null, noteDTO.getTitle(), noteDTO.getContent(), author, null, null, null);
+        Note newNote = new Note(null, noteDTO.getTitle(), noteDTO.getContent(), author, noteDTO.getIsFavorited(), null, null, null);
         Note savedNote = noteRepo.save(newNote);
 
         return savedNote;

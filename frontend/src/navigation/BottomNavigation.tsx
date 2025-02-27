@@ -10,7 +10,7 @@ import Settings from '../screens/settings/Settings';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import '../../global.css';
 import Security from '../screens/settings/Security';
-import Notifications from '../screens/settings/Notifications';
+import Reminders from '../screens/settings/Reminders';
 import Language from '../screens/settings/Language';
 import Preferences from '../screens/settings/Preferences';
 import Profile from '../screens/settings/Profile';
@@ -68,7 +68,7 @@ function SettingsStack() {
           header: () => (
             <CustomHeader
               title={'Settings'}
-              icon={icons.options}
+              icon={icons.settings}
               className="border-primary-300"
             />
           ),
@@ -95,7 +95,7 @@ function SettingsStack() {
           header: () => (
             <CustomHeader
               title={'Preferences'}
-              icon={icons.settings}
+              icon={icons.preferences}
               className="border-primary-300"
               backArrowEnable={true}
             />
@@ -103,13 +103,13 @@ function SettingsStack() {
         }}
       />
       <SettingsNativeStack.Screen
-        name="Notifications"
-        component={Notifications}
+        name="Reminders"
+        component={Reminders}
         options={{
           header: () => (
             <CustomHeader
-              title={'Notifications'}
-              icon={icons.bell}
+              title={'Reminders'}
+              icon={icons.reminder}
               className="border-primary-300"
               backArrowEnable={true}
             />
@@ -221,7 +221,7 @@ export function BottomNavigator() {
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
-            <TabIcon focused={focused} icon={icons.options} title="Settings" />
+            <TabIcon focused={focused} icon={icons.settings} title="Settings" />
           ),
         }}
       />

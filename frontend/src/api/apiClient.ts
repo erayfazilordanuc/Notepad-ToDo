@@ -45,7 +45,7 @@ export {getApiBaseUrl};
 //   const [apiBaseUrlInputValue, setApiBaseUrlInputValue] =
 //     useState(currentApiBaseUrl);
 
-//   const inputRef = useRef<TextInput>(null);
+//   const inputRef = useRef<TextInput     placeholderTextColor={'gray'}t selectionColor={'#7AADFF'}>(null);
 
 //   const handleEditPress = async () => {
 //     setIpEditEnabled(true);
@@ -108,7 +108,7 @@ export {getApiBaseUrl};
 //         <View className="pb-2 border-b border-primary-200">
 //           <Text className="text-lg font-rubik-bold">Api Base URL:</Text>
 //           <View className="flex flex-row justify-between items-center">
-//             <TextInput
+//             <TextInput     placeholderTextColor={'gray'}t selectionColor={'#7AADFF'}
 //               ref={inputRef}
 //               editable={ipEditEnabled}
 //               className="text-lg font-rubik flex-shrink"

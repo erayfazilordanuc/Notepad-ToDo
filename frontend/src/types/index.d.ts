@@ -9,6 +9,7 @@ type Note = {
   title: string;
   content: string;
   authorId?: number;
+  isFavorited?: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;
 };
@@ -35,4 +36,5 @@ type NoteRequestPayload = {
   title: string;
   content: string;
   authorId?: number;
+  isFavorited?: boolean;
 };

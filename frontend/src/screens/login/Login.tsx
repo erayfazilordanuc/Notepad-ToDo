@@ -207,7 +207,7 @@ function Login() {
             </Text>
           </Text>
           <Text
-            className={`text-3xl font-rubik-semibold text-black-300 text-center ${
+            className={`text-3xl font-rubik-medium text-black-300 text-center ${
               loginMethod === LoginMethod.default ? 'mb-4 mt-6' : 'mb-2 mt-8'
             }`}>
             {loginMethod === LoginMethod.default && 'Login'}
@@ -219,6 +219,8 @@ function Login() {
             <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 py-2 bg-primary-100">
               {/* Email pattern check is essential */}
               <TextInput
+                placeholderTextColor={'gray'}
+                selectionColor={'#7AADFF'}
                 value={multipleCredential}
                 onChangeText={(value: string) => {
                   setMultipleCredential(value);
@@ -231,8 +233,9 @@ function Login() {
           {(loginMethod === LoginMethod.registration ||
             loginMethod === LoginMethod.guest) && (
             <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 mt-2 py-2 bg-primary-100">
-              {/* TO DO ERROR THİS PLACEHOLDERS NOT SEEN AT DARK MODE */}
               <TextInput
+                placeholderTextColor={'gray'}
+                selectionColor={'#7AADFF'}
                 value={username}
                 onChangeText={(value: string) => {
                   setUsername(value);
@@ -247,6 +250,8 @@ function Login() {
               <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 py-2 bg-primary-100 mt-2">
                 {/* Email pattern check is essential */}
                 <TextInput
+                  placeholderTextColor={'gray'}
+                  selectionColor={'#7AADFF'}
                   value={email}
                   onChangeText={(value: string) => {
                     setEmail(value);
@@ -259,6 +264,8 @@ function Login() {
           )}
           <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 mt-2 py-2 bg-primary-100">
             <TextInput
+              placeholderTextColor={'gray'}
+              selectionColor={'#7AADFF'}
               value={password}
               onChangeText={(value: string) => {
                 setPassword(value);
