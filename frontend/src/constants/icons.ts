@@ -58,6 +58,15 @@ import heartRedV2 from '../assets/icons/heartRedV2.png';
 import reminder from '../assets/icons/reminder.png';
 import favorite from '../assets/icons/favorite.png';
 import favorited from '../assets/icons/favorited.png';
+import lightMode from '../assets/icons/lightMode.png';
+import darkMode from '../assets/icons/darkMode.png';
+import lightModeFilled from '../assets/icons/lightModeFilled.png';
+import darkModeFilled from '../assets/icons/darkModeFilled.png';
+import checkedToDo from '../assets/icons/checkedToDo.png';
+import uncheckedToDo from '../assets/icons/uncheckedToDo.png';
+import trash from '../assets/icons/trash.png';
+import dayMode from '../assets/icons/dayMode.png';
+import nightMode from '../assets/icons/nightMode.png';
 
 export default {
   google,
@@ -120,4 +129,13 @@ export default {
   reminder,
   favorite,
   favorited,
+  lightMode,
+  darkMode,
+  lightModeFilled,
+  darkModeFilled,
+  checkedToDo,
+  uncheckedToDo,
+  trash,
+  dayMode,
+  nightMode,
 };

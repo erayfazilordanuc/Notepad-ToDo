@@ -165,7 +165,7 @@ export const deleteNoteById = async (
   const userData = await AsyncStorage.getItem('user');
   const user: User = JSON.parse(userData!);
 
-  if (userOnline && user.id !== 0) {
+  if (userOnline && user.id! > 0) {
     await apiClient.delete(`/note/${id}`);
   }
 

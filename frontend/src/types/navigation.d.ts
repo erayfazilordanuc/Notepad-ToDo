@@ -3,6 +3,11 @@ type NotesStackParamList = {
   Note: {noteId: string};
 };
 
+type ToDosStackParamList = {
+  ToDos: any;
+  ToDo: {todoId: string};
+};
+
 type SettingsStackParamList = {
   Settings: undefined;
   Profile: undefined;
@@ -14,7 +19,7 @@ type SettingsStackParamList = {
 
 type RootStackParamList = {
   Notes: any; // TO DO what is the difference between any and undefined here?
-  ToDo: undefined;
+  ToDos: undefined;
   Settings: undefined;
 };
 
@@ -25,6 +30,8 @@ type AppStackParamList = {
 };
 
 type NotesScreenNavigationProp = NativeStackNavigationProp<NotesStackParamList>;
+
+type ToDosScreenNavigationProp = NativeStackNavigationProp<ToDosStackParamList>;
 
 type SettingsScreenNavigationProp =
   NativeStackNavigationProp<SettingsStackParamList>;
@@ -38,9 +45,9 @@ type AppScreenNavigationProp = NativeStackNavigationProp<AppStackParamList>;
 //   'Notes'
 // >;
 
-// type ToDoScreenNavigationProp = NativeStackNavigationProp<
+// type ToDosScreenNavigationProp = NativeStackNavigationProp<
 //   RootStackParamList,
-//   'ToDo'
+//   'ToDos'
 // >;
 
 // type SettingsScreenNavigationProp = NativeStackNavigationProp<

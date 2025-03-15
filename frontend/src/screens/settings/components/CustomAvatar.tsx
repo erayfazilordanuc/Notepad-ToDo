@@ -1,6 +1,7 @@
 import {View, Text} from 'react-native';
 import React from 'react';
 import {Avatar} from 'react-native-elements';
+import {useTheme} from '../../../themes/ThemeProvider';
 
 const getColorForLetter = (letter: string): string => {
   const colors: Record<string, string> = {
@@ -46,6 +47,7 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
 }) => {
   const firstLetter = username ? username.charAt(0).toUpperCase() : '?';
   const backgroundColor = getColorForLetter(firstLetter);
+  const {colors} = useTheme();
 
   return (
     <View className="flex flex-col items-center relative">
@@ -56,7 +58,9 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
         containerStyle={{backgroundColor}}
       />
       {isUsernameShown && (
-        <Text className="text-2xl font-rubik-semibold mt-3">
+        <Text
+          className="text-2xl font-rubik mt-3"
+          style={{color: colors.text.primary}}>
           {username || 'Unknown'}
         </Text>
       )}

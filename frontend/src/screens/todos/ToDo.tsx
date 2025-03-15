@@ -13,41 +13,41 @@ import {
   Platform,
   StyleSheet,
   BackHandler,
-  ScrollView,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import icons from '../../constants/icons';
 import {
-  createNote,
-  deleteNoteById,
-  getNote,
-  updateNote,
-} from '../../api/noteService';
+  createToDo,
+  deleteToDoById,
+  getToDo,
+  updateToDo,
+} from '../../api/todoService';
 import {useTheme} from '../../themes/ThemeProvider';
 import {themes} from '../../themes/themes';
 import {addEventListener} from '@react-native-community/netinfo';
 import CustomAlert from '../../components/CustomAlert';
 // import NetInfo from '@react-native-community/netinfo';
 
-const Note = () => {
+const ToDo = () => {
   const route = useRoute();
 
-  const navigation = useNavigation<NotesScreenNavigationProp>();
+  const navigation = useNavigation<ToDosScreenNavigationProp>();
 
   const {theme, colors, setTheme} = useTheme();
 
   const [userOnline, setUserOnline] = useState(false);
 
-  const [prevNote, setPrevNote] = useState<Note | null>(null);
+  const [prevToDo, setPrevToDo] = useState<ToDo | null>(null);
 
-  const {noteId} = route.params as {noteId: number};
+  const {todoId} = route.params as {todoId: number};
 
-  const [note, setNote] = useState<Note | null>({
+  const [todo, setToDo] = useState<ToDo | null>({
     id: 0,
     title: '',
     content: '',
+    isDone: false,
     isFavorited: false,
   });
 
@@ -67,23 +67,18 @@ const Note = () => {
 
   const windowHeight = Dimensions.get('window').height;
 
-  const windowWidth = Dimensions.get('window').width;
-
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  const scrollViewRef = useRef<ScrollView>(null);
 
   const inputRef = useRef<TextInput>(null);
 
-  const textInputRef = useRef<TextInput>(null);
-
-  const [selection, setSelection] = useState({
-    start: note?.content.length ? note.content.length : 0,
-    end: note?.content.length ? note.content.length : 0,
-  });
-
   const handleOpenKeyboard = () => {
     inputRef.current?.focus();
+  };
+
+  const checkTodo = async () => {
+    if (todo && todo.title.length === 0 && todo?.content.length === 0) {
+      await deleteToDoById(todo.id, userOnline);
+    }
   };
 
   useEffect(() => {
@@ -92,104 +87,58 @@ const Note = () => {
     });
 
     return () => unsubscribe();
-  }, [note]);
-
-  // useEffect(() => {
-  //   if (textInputRef.current) {
-  //     textInputRef.current.setNativeProps({
-  //       selection: {start: 0, end: 0},
-  //     });
-  //   }
-  // }, []);
-
-  const scrollToEnd = () => {
-    if (scrollViewRef.current) {
-      // Sayfa açıldığında ScrollView'ı en üste kaydır
-      scrollViewRef.current.scrollToEnd({animated: false});
-    }
-  };
-
-  const scrollTextInput = () => {
-    if (textInputRef.current) {
-      textInputRef.current.setNativeProps({
-        selection: {start: 0, end: 0},
-      });
-    }
-  };
-
-  const checkNote = async () => {
-    if (note && note.title.length === 0 && note?.content.length === 0) {
-      await deleteNoteById(note.id, userOnline);
-    }
-  };
+  }, [todo]);
 
   useEffect(() => {
-    if (scrollViewRef.current) {
-      // Sayfa açıldığında ScrollView'ı en üste kaydır
-      scrollViewRef.current.scrollTo({y: 0, animated: false});
-    }
-
-    // setSelection({
-    //   start: 0,
-    //   end: 0,
-    // });
-  }, []);
-
-  useEffect(() => {
-    if (noteId) {
-      const fetchNote = async () => {
-        const note = await getNote(noteId, userOnline);
-        setNote(note);
-        setPrevNote(note);
+    if (todoId) {
+      const fetchToDo = async () => {
+        const todo = await getToDo(todoId, userOnline);
+        setToDo(todo);
+        setPrevToDo(todo);
       };
 
-      fetchNote();
+      fetchToDo();
     } else {
-      const fetchNote = async () => {
-        const note = await createNote(userOnline);
-        setNote(note);
-        setPrevNote(note);
+      const fetchToDo = async () => {
+        const todo = await createToDo(userOnline);
+        setToDo(todo);
+        setPrevToDo(todo);
       };
 
-      fetchNote();
+      fetchToDo();
     }
   }, []);
 
   useEffect(() => {
-    if (!note) return;
+    if (!todo) return;
 
-    if (note.id !== 0) {
+    if (todo.id !== 0) {
       if (
-        note.title === prevNote?.title &&
-        note.content === prevNote?.content &&
-        note.isFavorited === prevNote?.isFavorited
+        todo.title === prevToDo?.title &&
+        todo.content === prevToDo?.content &&
+        todo.isFavorited === prevToDo?.isFavorited
       ) {
         return;
       }
 
-      const notePayload: NoteRequestPayload = {
-        title: note.title,
-        content: note.content,
-        authorId: note.authorId,
-        isFavorited: note.isFavorited,
+      const todoPayload: ToDoRequestPayload = {
+        title: todo.title,
+        content: todo.content,
+        authorId: todo.authorId,
+        isDone: todo.isDone,
+        isFavorited: todo.isFavorited,
       };
 
-      updateNote(note.id!, notePayload, userOnline);
-      setPrevNote(note);
+      updateToDo(todo.id!, todoPayload, userOnline);
+      setPrevToDo(todo);
     }
-
-    // setSelection({
-    //   start: note?.content.length ? note.content.length : 0,
-    //   end: note?.content.length ? note.content.length : 0,
-    // });
-  }, [note]);
+  }, [todo]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
       event => {
         setKeyboardHeight(event.endCoordinates.height);
-        setIsKeyboardVisible(true); // Klavye açıldı
       },
     );
 
@@ -197,7 +146,6 @@ const Note = () => {
       'keyboardDidHide',
       () => {
         setKeyboardHeight(0);
-        setIsKeyboardVisible(false); // Klavye kapandı
       },
     );
 
@@ -209,7 +157,7 @@ const Note = () => {
 
   useEffect(() => {
     const backAction = () => {
-      checkNote();
+      checkTodo();
       navigation.goBack();
       return true;
     };
@@ -222,16 +170,11 @@ const Note = () => {
     return () => backHandler.remove();
   }, []);
 
-  const handleDeleteNote = async () => {
+  const handleDeleteToDo = async () => {
     setIsModalVisible(false);
-    deleteNoteById(note!.id!, userOnline);
-    navigation.navigate('Notes');
+    deleteToDoById(todo!.id!, userOnline);
+    navigation.navigate('ToDos');
     // Dont goBack in order to refresh the notes because It doesnt trigger useEffect()
-  };
-
-  const handleLayout = (event: any) => {
-    const {width, height, x, y} = event.nativeEvent.layout;
-    console.log(`Width: ${width}, Height: ${height}, X: ${x}, Y: ${y}`);
   };
 
   return (
@@ -241,14 +184,13 @@ const Note = () => {
         Keyboard.dismiss();
       }}
       style={{backgroundColor: colors.background.primary}}>
-      <SafeAreaView
-        style={{flex: 1, backgroundColor: colors.background.primary}}>
+      <SafeAreaView style={{backgroundColor: colors.background.primary}}>
         <View
-          className="flex flex-row items-center w-full justify-between py-2 pt-3 border-b border-primary-250"
+          className="flex flex-row items-center w-full justify-between py-2 pt-3 border-b border-emerald-500"
           style={{backgroundColor: colors.background.primary}}>
           <TouchableOpacity
             onPress={() => {
-              checkNote();
+              checkTodo();
               navigation.goBack();
             }}
             className="flex flex-row rounded-full size-11 items-center justify-center ml-2">
@@ -262,7 +204,7 @@ const Note = () => {
             <TouchableOpacity
               className="flex flex-row items-center mr-3"
               onPress={() => {
-                setNote(prev =>
+                setToDo(prev =>
                   prev
                     ? {
                         ...prev,
@@ -274,14 +216,10 @@ const Note = () => {
               {/* Basıldığında kırmızı olsun */}
               {/* Seçeneklerin içine taşınabilir */}
               <Image
-                source={note?.isFavorited ? icons.favorited : icons.favorite}
+                source={todo?.isFavorited ? icons.favorited : icons.favorite}
                 className="size-7"
                 tintColor={
-                  note?.isFavorited
-                    ? theme.name === 'Primary Light'
-                      ? colors.primary[300]
-                      : colors.primary[250]
-                    : colors.text.primary
+                  todo?.isFavorited ? colors.text.todo : colors.text.primary
                 }
               />
             </TouchableOpacity>
@@ -314,7 +252,7 @@ const Note = () => {
                     className="z-50 rounded-xl border p-2"
                     style={{
                       backgroundColor: colors.background.primary,
-                      borderColor: colors.background.secondary,
+                      borderColor: colors.background.third,
                     }}>
                     <Text
                       selectable
@@ -329,7 +267,7 @@ const Note = () => {
                     className="z-50 border p-2 rounded-2xl"
                     style={{
                       backgroundColor: colors.background.primary,
-                      borderColor: colors.background.secondary,
+                      borderColor: colors.background.third,
                     }}>
                     <Text
                       selectable
@@ -340,7 +278,7 @@ const Note = () => {
                         style={{color: colors.text.primary}}>
                         Id{' '}
                       </Text>
-                      {note!.id ? note!.id : ''}
+                      {todo!.id ? todo!.id : ''}
                     </Text>
                     <Text
                       selectable
@@ -352,8 +290,8 @@ const Note = () => {
                         Creation
                       </Text>
                       {'\n'}
-                      {note?.createdAt
-                        ? new Date(note!.createdAt!).toLocaleTimeString(
+                      {todo?.createdAt
+                        ? new Date(todo!.createdAt!).toLocaleTimeString(
                             'en-EN',
                             {
                               hour: '2-digit',
@@ -364,8 +302,8 @@ const Note = () => {
                           )
                         : ''}
                       {'\n'}
-                      {note?.createdAt
-                        ? new Date(note!.createdAt!).toLocaleDateString(
+                      {todo?.createdAt
+                        ? new Date(todo!.createdAt!).toLocaleDateString(
                             'en-EN',
                             {
                               weekday: 'long',
@@ -385,8 +323,8 @@ const Note = () => {
                         Last Update
                       </Text>
                       {'\n'}
-                      {note?.updatedAt
-                        ? new Date(note!.updatedAt!).toLocaleTimeString(
+                      {todo?.updatedAt
+                        ? new Date(todo!.updatedAt!).toLocaleTimeString(
                             'en-EN',
                             {
                               hour: '2-digit',
@@ -397,8 +335,8 @@ const Note = () => {
                           )
                         : ''}
                       {'\n'}
-                      {note?.updatedAt
-                        ? new Date(note!.updatedAt!).toLocaleDateString(
+                      {todo?.updatedAt
+                        ? new Date(todo!.updatedAt!).toLocaleDateString(
                             'en-EN',
                             {
                               weekday: 'long',
@@ -415,7 +353,7 @@ const Note = () => {
                   className="z-50 rounded-2xl border p-2"
                   style={{
                     backgroundColor: colors.background.primary,
-                    borderColor: colors.background.secondary,
+                    borderColor: colors.background.third,
                   }}>
                   <TouchableOpacity
                     className=" border-primary-200"
@@ -444,7 +382,7 @@ const Note = () => {
                   <CustomAlert
                     message={'Are you sure to delete?'}
                     visible={isAlertVisible}
-                    onYes={handleDeleteNote}
+                    onYes={handleDeleteToDo}
                     onCancel={() => {
                       setIsAlertVisible(false);
                     }}
@@ -472,27 +410,30 @@ const Note = () => {
             </View>
           </TouchableWithoutFeedback>
         </Modal>
+
         <View
           style={{
             flexDirection: 'column',
-            paddingHorizontal: 10,
-            paddingRight: 16,
+            paddingHorizontal: 6,
+            paddingRight: 12,
             paddingTop: 6,
-            backgroundColor: colors.background.secondary,
-            height: windowHeight * 0.87, // isKeyboardVisible ? windowHeight * 1 :
+            backgroundColor: colors.background.third,
+            height: windowHeight * 0.87,
+            paddingBottom: keyboardHeight * 0.5,
           }}>
           <TextInput
             placeholderTextColor={'gray'}
-            selectionColor={'#7AADFF'}
-            value={note?.title}
+            selectionColor={'#64cc95'}
+            value={todo?.title}
             onChangeText={value => {
-              setNote(prev => (prev ? {...prev, title: value} : null));
+              setToDo(prev => (prev ? {...prev, title: value} : null));
             }}
-            placeholder="Title"
+            placeholder="To do"
             className="text-wrap text-2xl font-rubik ml-2 text-left border-b pb-2"
             style={{
               color: colors.text.primary,
-              borderColor: colors.primary[200],
+              borderColor:
+                theme.name === 'Primary Light' ? '#9dd9c5' : '#6dc1a4',
             }}
             multiline
             textAlignVertical="top"
@@ -500,45 +441,25 @@ const Note = () => {
             maxLength={100}
             numberOfLines={3}
           />
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{
-              flex: 1,
-              paddingBottom: isKeyboardVisible ? keyboardHeight * 0.3 : 0,
-            }}>
-            <ScrollView
-              ref={scrollViewRef}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled">
-              <TextInput
-                // selection={selection}
-                placeholderTextColor={'gray'}
-                selectionColor={'#7AADFF'}
-                value={note?.content}
-                onChangeText={value => {
-                  setNote(prev => (prev ? {...prev, content: value} : null));
-                }}
-                onSelectionChange={({nativeEvent}) => {
-                  const {selection} = nativeEvent;
-                  // setSelection(selection);
-                  console.log(note?.content.length);
-                  console.log('Kullanıcının dokunduğu konum:', selection);
-                }}
-                placeholder="Note"
-                className="leading-6 text-wrap text-lg font-rubik ml-2 text-left pt-3"
-                style={{color: colors.text.primary}}
-                multiline
-                textAlignVertical="top"
-                maxLength={10000}
-                numberOfLines={250}
-                autoFocus={false}
-              />
-            </ScrollView>
-          </KeyboardAvoidingView>
+          <TextInput
+            placeholderTextColor={'gray'}
+            selectionColor={'#64cc95'}
+            value={todo?.content}
+            onChangeText={value => {
+              setToDo(prev => (prev ? {...prev, content: value} : null));
+            }}
+            placeholder="Content"
+            className="leading-6 text-wrap text-xl font-rubik ml-2 flex-1 text-left pt-3"
+            style={{color: colors.text.primary}}
+            multiline
+            textAlignVertical="top"
+            maxLength={10000}
+            numberOfLines={250}
+          />
         </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 };
 
-export default Note;
+export default ToDo;

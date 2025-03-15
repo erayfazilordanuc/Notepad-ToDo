@@ -1,21 +1,30 @@
 import React from 'react';
 import {View, Text, Image} from 'react-native';
 import images from '../constants/images';
+import {useTheme} from '../themes/ThemeProvider';
 
-const NoResults = () => {
+interface NoResultProps {
+  isNote: boolean;
+}
+
+const NoResults = ({isNote}: NoResultProps) => {
+  const {colors} = useTheme();
+
   return (
     <View className="flex items-center my-36">
       <Image
-        source={images.noResult}
+        source={isNote ? images.noResult : images.noResultToDo}
         className="w-11/12 h-80"
         resizeMode="contain"
       />
-      <Text className="text-2xl font-rubik-bold text-black-300 mt-5">
-        No Notes
+      <Text
+        className="text-2xl font-rubik-bold mt-5"
+        style={{color: colors.text.primary}}>
+        {isNote ? 'No Notes' : "No To Do's"}
       </Text>
-      <Text className="text-base text-black-100 mt-2">
+      <Text className="text-base mt-2" style={{color: colors.text.secondary}}>
         {/* You don't have any notes yet */}
-        No notes found
+        {isNote ? 'No notes found' : "No to do's found"}
       </Text>
     </View>
   );

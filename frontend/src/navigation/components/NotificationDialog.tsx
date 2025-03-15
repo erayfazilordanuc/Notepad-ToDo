@@ -2,7 +2,6 @@
 // import { Snackbar } from 'react-native-paper';
 // import { updateNotification, useAppDispatch, useAppSelector } from '@serenity/core';
 
-
 // const NotificationBar = () => {
 //   const [visible, setVisible] = React.useState(false);
 //   const { notify } = useAppSelector(state => state.ui);

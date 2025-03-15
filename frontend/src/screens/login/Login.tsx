@@ -18,9 +18,12 @@ import {guestLogin, login, register} from '../../api/authService';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNetInfo} from '@react-native-community/netinfo';
+import {useTheme} from '../../themes/ThemeProvider';
 
 function Login() {
   const navigation = useNavigation<RootScreenNavigationProp>();
+
+  const {theme, colors, setTheme} = useTheme();
 
   const [versatileError, setVersatileError] = useState('');
 
@@ -198,7 +201,7 @@ function Login() {
       <ScrollView contentContainerClassName="pb-12">
         <View
           className={`px-10 mt-${
-            loginMethod === LoginMethod.registration ? '' : '12'
+            loginMethod === LoginMethod.registration ? '12' : '16'
           }`}>
           <Text className="text-3xl text-center uppercase font-rubik-bold text-black-300 mt-12 mb-4">
             Welcome to {'\n'}
@@ -216,7 +219,7 @@ function Login() {
           </Text>
 
           {loginMethod === LoginMethod.default && (
-            <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 py-2 bg-primary-100">
+            <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 py-2 ">
               {/* Email pattern check is essential */}
               <TextInput
                 placeholderTextColor={'gray'}
@@ -232,7 +235,7 @@ function Login() {
           )}
           {(loginMethod === LoginMethod.registration ||
             loginMethod === LoginMethod.guest) && (
-            <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 mt-2 py-2 bg-primary-100">
+            <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 mt-2 py-2 ">
               <TextInput
                 placeholderTextColor={'gray'}
                 selectionColor={'#7AADFF'}
@@ -247,7 +250,7 @@ function Login() {
           )}
           {loginMethod === LoginMethod.registration && (
             <View>
-              <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 py-2 bg-primary-100 mt-2">
+              <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 py-2 mt-2">
                 {/* Email pattern check is essential */}
                 <TextInput
                   placeholderTextColor={'gray'}
@@ -262,7 +265,7 @@ function Login() {
               </View>
             </View>
           )}
-          <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 mt-2 py-2 bg-primary-100">
+          <View className="flex flex-row items-center justify-start z-50 rounded-full bg-accent-100 border border-blue-200 mt-2 py-2">
             <TextInput
               placeholderTextColor={'gray'}
               selectionColor={'#7AADFF'}

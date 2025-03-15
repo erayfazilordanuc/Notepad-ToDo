@@ -1,6 +1,8 @@
+import {useTheme} from '../../../themes/ThemeProvider';
 import icons from '../../../constants/icons';
 import {useEffect, useState} from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {themes} from '../../../themes/themes';
 
 interface NoteProps {
   note: Note | any;
@@ -11,7 +13,7 @@ interface NoteProps {
   onLongPress: (id: number) => void;
 }
 
-const Note = ({
+const NoteCard = ({
   note,
   isEditMode,
   allSelected,
@@ -19,11 +21,12 @@ const Note = ({
   onPress,
   onLongPress,
 }: NoteProps) => {
-  const MAX_TITLE_LENGTH = 41;
-  const MAX_CONTENT_LENGTH = 75;
+  const MAX_CONTENT_LENGTH = 350;
   const EDIT_MODE_MAX_CONTENT_LENGTH = 41;
 
   const [isSelected, setIsSelected] = useState(false);
+
+  const {theme, colors, setTheme} = useTheme();
 
   const handleOnPress = () => {
     const isSelected = onPress();
@@ -42,7 +45,8 @@ const Note = ({
 
   return (
     <TouchableOpacity
-      className="border border-primary-200 flex-1 w-full mt-4 px-3 py-4 rounded-2xl bg-white shadow-lg shadow-black-100/70 relative"
+      className="flex-1 w-full mb-4 px-3 py-2 rounded-2xl" // border border-primary-200 relative
+      style={{backgroundColor: colors.background.primary}}
       onPress={handleOnPress}
       onLongPress={() => {
         onLongPress(note.id!);
@@ -57,34 +61,55 @@ const Note = ({
 
       {/* <Image source={item.image} className="w-full h-40 rounded-lg" /> */}
 
-      <View className="flex flex-col">
-        <View className="flex flex-row justify-between items-center">
-          <Text
-            className={`text-base font-rubik-medium flex-shrink ${
-              note.title ? 'text-primary-300' : 'text-black-200'
-            }`}>
-            {note.title
-              ? note.title.length > MAX_TITLE_LENGTH
-                ? `${note.title.substring(0, MAX_TITLE_LENGTH)}...`
-                : note.title
-              : 'New Note'}
-          </Text>
+      <View className="flex flex-col px-1">
+        <View className="flex flex-row justify-between items-center mt-1">
+          {(note.title !== '' || note.isFavorited || isEditMode) && (
+            <Text
+              className={`text-lg font-rubik-medium flex-shrink`}
+              style={{
+                color:
+                  theme.name === 'Primary Light'
+                    ? colors.primary[300]
+                    : colors.primary[250],
+                lineHeight: 20,
+              }}>
+              {note.title}
+            </Text>
+          )}
 
-          {isEditMode && (
-            <TouchableOpacity onPress={handleOnPress} className="ml-2">
+          <View className="flex flex-row ml-2">
+            {note.isFavorited && (
               <Image
-                source={isSelected ? icons.checked : icons.unchecked}
-                className="size-4"
+                source={icons.favorited}
+                className="size-5"
+                tintColor={
+                  theme.name === 'Primary Light'
+                    ? colors.primary[300]
+                    : colors.primary[250]
+                }
               />
-            </TouchableOpacity>
-          )}
-
-          {note.isFavorited && (
-            <Image source={icons.favorited} className="size-5" />
-          )}
+            )}
+            {isEditMode && (
+              <TouchableOpacity onPress={handleOnPress} className="ml-2">
+                <Image
+                  source={isSelected ? icons.checked : icons.unchecked}
+                  className="size-5"
+                  tintColor={colors.text.primary}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
-        <Text className="text-sm font-rubik text-black-200 leading-4">
+        <Text
+          className="text-md font-rubik text-black-200 leading-5 mt-1"
+          style={{
+            color:
+              theme.name === 'Primary Light'
+                ? colors.text.third
+                : colors.text.secondary,
+          }}
+          numberOfLines={15}>
           {isEditMode
             ? `${note.content.substring(0, EDIT_MODE_MAX_CONTENT_LENGTH)} ${
                 note.content.length > 0 ? '... ' : ''
@@ -94,7 +119,9 @@ const Note = ({
             : note.content}
         </Text>
 
-        <Text className="text-sm font-rubik text-black-200 leading-4 text-right mt-3">
+        <Text
+          className="text-sm font-rubik text-black-200 leading-4 text-right mt-4 mb-1"
+          style={{color: colors.text.secondary}}>
           {/* TO DO burada dil seçimine göre format değişmeli */}
           {new Date(note.updatedAt!).toLocaleDateString('en-EN', {
             day: 'numeric',
@@ -110,7 +137,7 @@ const Note = ({
   );
 };
 
-export default Note;
+export default NoteCard;
 
 // Year: {String(new Date(note.createdAt!).getFullYear())}
 // Month: {String(new Date(note.createdAt!).getMonth())}

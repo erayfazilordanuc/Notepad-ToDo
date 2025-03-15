@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Modal,
   Keyboard,
+  ScrollView,
   ToastAndroid,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -18,22 +19,27 @@ import {getUser} from '../../api/userService';
 import {useCallback, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Note from './Note';
-import NoteCard from './components/NoteCard';
+// import ToDo from './ToDo';
 import icons from '../../constants/icons';
-import {deleteNotesByIds, getNotesByAuthorId} from '../../api/noteService';
+import {
+  deleteToDosByIds,
+  getToDosByAuthorId,
+  updateToDos,
+} from '../../api/todoService';
 import NoResults from '../../components/NoResults';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {addEventListener} from '@react-native-community/netinfo';
-import SortOption from '../../components/SortOption';
+// import SortOption from './components/SortOption';
 import MasonryList from '@react-native-seoul/masonry-list';
 import {useTheme} from '../../themes/ThemeProvider';
 import {themes} from '../../themes/themes';
 import {BackHandler} from 'react-native';
+import SortOption from '../../components/SortOption';
+import ToDoCard from './components/ToDoCard';
 import CustomAlert from '../../components/CustomAlert';
 
-function Notes() {
-  const navigation = useNavigation<NotesScreenNavigationProp>();
+function ToDos() {
+  const navigation = useNavigation<ToDosScreenNavigationProp>();
 
   const appNavigation = useNavigation<AppScreenNavigationProp>();
 
@@ -43,13 +49,15 @@ function Notes() {
 
   const [userOnline, setUserOnline] = useState(false);
 
-  const [allNotes, setAllNotes] = useState<Note[]>([]);
+  const [allToDos, setAllToDos] = useState<ToDo[]>([]);
 
-  const [notesToShow, setNotesToShow] = useState<Note[]>([]);
+  const [todosToShow, setToDosToShow] = useState<ToDo[]>([]);
+
+  const [compeletedToDos, setCompeletedToDos] = useState<ToDo[]>([]);
+
+  const [showCompeletedToDos, setShowCompeletedToDos] = useState(false);
 
   const [search, setSearch] = useState('');
-
-  const [layoutMode, setLayoutMode] = useState(2);
 
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -60,6 +68,9 @@ function Notes() {
   const [sortModalVisible, setSortModalVisible] = useState(false);
 
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+
+  const [isCompeletedAlertVisible, setIsCompeletedAlertVisible] =
+    useState(false);
 
   enum SortType {
     DATE_ASCENDING,
@@ -80,7 +91,7 @@ function Notes() {
     });
 
     return () => unsubscribe();
-  }, [notesToShow]);
+  }, [todosToShow]);
 
   const fetchUser = async () => {
     const userData = await AsyncStorage.getItem('user');
@@ -94,40 +105,52 @@ function Notes() {
       const user: User = JSON.parse(userData!);
       setUser(user);
 
-      // Info: it isn't possible to use fetchUser and fetchNotes together because of the async user object
+      // Info: it isn't possible to use fetchUser and fetchToDos together because of the async user object
       // Also fetchUser cant return user to use in useEffect because async operations are not allowed in useEffect
 
-      const notesData = await getNotesByAuthorId(user!.id!, userOnline);
-      setAllNotes(notesData!);
-      setNotesToShow(notesData!);
+      const todosData = await getToDosByAuthorId(user!.id!, userOnline);
+      setAllToDos(todosData!);
+      setToDosToShow(todosData!);
     };
 
     initialFetch();
   }, []);
 
-  const fetchNotes = async () => {
-    if (notesToShow) {
-      const notes = await getNotesByAuthorId(user!.id!, userOnline);
+  const fetchToDos = async () => {
+    if (todosToShow) {
+      const todos = await getToDosByAuthorId(user!.id!, userOnline);
 
-      const sortedNotes = [...notes].sort((a: Note, b: Note) => a.id - b.id);
-      const sortedAllNotes = [...allNotes].sort(
-        (a: Note, b: Note) => a.id - b.id,
+      const sortedToDos = [...todos].sort((a: ToDo, b: ToDo) => a.id - b.id);
+      const sortedAllToDos = [...allToDos].sort(
+        (a: ToDo, b: ToDo) => a.id - b.id,
       );
 
-      if (JSON.stringify(sortedNotes) === JSON.stringify(sortedAllNotes)) {
+      if (JSON.stringify(sortedToDos) === JSON.stringify(sortedAllToDos)) {
         return;
       }
 
+      const filteredTodos = todos.filter(todo => todo.id);
+      setAllToDos(filteredTodos!);
+
+      await updateToDos(filteredTodos);
+
+      const compeletedToDos = filteredTodos.filter(todo => todo.isDone);
+      setCompeletedToDos(compeletedToDos);
+
+      const activeTodos = filteredTodos.filter(todo => !todo.isDone);
+      setToDosToShow(activeTodos!);
+
       setSortType(SortType.DATE_DESCENDING);
 
-      setAllNotes(notes!);
-      setNotesToShow(notes!);
+      // bunun amacı bir note compeleted olunca listeyi açmak
+      // fakat sayfa her render olduğunda burası tekrar açılacağından bu kısımda kullanılamaz
+      // setShowCompeletedToDos(true);
     }
   };
 
   useFocusEffect(() => {
     // useCallback has caused some asynchronous issues
-    fetchNotes();
+    fetchToDos();
   });
 
   useEffect(() => {
@@ -137,20 +160,24 @@ function Notes() {
       searchedParams = searchedParams.filter(
         param => param.length > 0 && param !== ' ',
       );
-      const filteredNotes = allNotes.filter(
+      const filteredToDos = allToDos.filter(
         note =>
           note.title.toLowerCase().includes(searchedValue) ||
           note.content.toLowerCase().includes(searchedValue),
       );
 
-      setNotesToShow(filteredNotes);
+      setToDosToShow(filteredToDos);
     } else {
-      setNotesToShow(allNotes);
+      setToDosToShow(allToDos);
     }
   }, [search]);
 
-  const sortNotes = (notes: Note[], sortTypeParam?: SortType) => {
-    notes.sort((a: Note, b: Note) => {
+  const sortToDos = (
+    todos: ToDo[],
+    onCallback: (todos: ToDo[]) => void,
+    sortTypeParam?: SortType,
+  ) => {
+    todos.sort((a: ToDo, b: ToDo) => {
       switch (sortTypeParam ? sortTypeParam : sortType) {
         case SortType.DATE_ASCENDING:
           return (
@@ -185,16 +212,17 @@ function Notes() {
       }
     });
 
-    setNotesToShow(notes);
+    onCallback(todos);
   };
 
   useEffect(() => {
-    sortNotes(notesToShow);
+    sortToDos(todosToShow, setToDosToShow);
+    sortToDos(compeletedToDos, setCompeletedToDos);
   }, [sortType]);
 
   const handleSelectAll = () => {
     if (!allSelected) {
-      setIdsToDelete(allNotes.map(note => note.id!));
+      setIdsToDelete(allToDos.map(note => note.id!));
     } else {
       setIdsToDelete([]);
     }
@@ -202,64 +230,57 @@ function Notes() {
     setAllSelected(!allSelected);
   };
 
-  const handleNoteCardPress = (id: number) => {
-    navigation.navigate('Note', {noteId: id});
+  const handleToDoPress = (id: number) => {
+    navigation.navigate('ToDo', {todoId: id});
   };
 
-  const handleCreateNote = async () => {
-    navigation.navigate('Note', {noteId: null});
+  const handleCreateToDo = async () => {
+    navigation.navigate('ToDo', {todoId: null});
   };
 
-  const handleDeleteNotes = async () => {
+  const handleDeleteToDos = async () => {
     if (idsToDelete.length > 0) {
-      deleteNotesByIds(idsToDelete, userOnline), setIsEditMode(false);
+      deleteToDosByIds(idsToDelete, userOnline), setIsEditMode(false);
       setIdsToDelete([]);
       setTimeout(() => {
-        fetchNotes();
+        fetchToDos();
       }, 500);
     } else {
       ToastAndroid.show(
-        'There is no notes selected to delete',
+        'There is no to dos selected to delete',
         ToastAndroid.SHORT,
       );
       setIsAlertVisible(false);
     }
   };
+
+  const handleDeleteCompeletedToDos = async () => {
+    const compeletedIdsToDelete = compeletedToDos.map(todo => todo.id!);
+    if (compeletedIdsToDelete.length > 0) {
+      deleteToDosByIds(compeletedIdsToDelete, userOnline), setIsEditMode(false);
+      setIdsToDelete([]);
+      setShowCompeletedToDos(false);
+      setIsCompeletedAlertVisible(false);
+      setTimeout(() => {
+        fetchToDos();
+      }, 500);
+    }
+  };
+
   // const memoizedSearchBar = useMemo(() => {
   //   return <SearchBar search={search} setSearch={setSearch} />;
   // }, [search]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const backAction = () => {
-        if (isEditMode) {
-          setIsEditMode(false);
-          setIdsToDelete([]);
-          return true;
-        }
-        BackHandler.exitApp();
-        return true;
-      };
-
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        backAction,
-      );
-
-      return () => backHandler.remove(); // Ekrandan çıkınca event listener'ı kaldır
-    }, [isEditMode]),
-  );
-
   return (
     <SafeAreaView
       className="h-full"
-      style={{backgroundColor: colors.background.secondary}}>
+      style={{backgroundColor: colors.background.third}}>
       <View
         className="pl-3 pr-4 pt-5"
-        style={{backgroundColor: colors.background.secondary}}>
+        style={{backgroundColor: colors.background.third}}>
         <View className="flex flex-row justify-center items-center mb-3">
           <TouchableOpacity
-            className="flex flex-row items-center rounded-full px-3 h-12 w-12 border border-primary-250 ml-4"
+            className="flex flex-row items-center rounded-full px-3 h-12 w-12 border border-emerald-500 ml-4"
             style={{backgroundColor: colors.background.primary}}
             onPress={() => {
               setSortModalVisible(!sortModalVisible);
@@ -271,7 +292,7 @@ function Notes() {
             />
           </TouchableOpacity>
           <View
-            className="flex flex-row items-center justify-between w-2/3 px-4 rounded-full  border border-primary-250 ml-2"
+            className="flex flex-row items-center justify-between w-2/3 px-4 rounded-full  border border-emerald-500 ml-2"
             style={{backgroundColor: colors.background.primary}}>
             <View className="flex-1 flex flex-row items-center justify-start z-50">
               <Image
@@ -280,9 +301,9 @@ function Notes() {
                 tintColor={colors.text.primary}
               />
               <TextInput
-                selectionColor={'#7AADFF'}
+                selectionColor={'#64cc95'}
                 placeholderTextColor={'gray'}
-                placeholder="Search for notes"
+                placeholder="Search for todo's"
                 value={search}
                 onChangeText={(value: string) => {
                   setSearch(value);
@@ -293,60 +314,143 @@ function Notes() {
             </View>
             {/* TO DO buraya profil avatarı eklenebilir */}
           </View>
-
-          {/* TO DO ERROR çok item olunca tek elemanlı satırda bug oluşutyor*/}
-          <TouchableOpacity
-            className="flex flex-row items-center rounded-full px-3 h-12 border border-primary-250 ml-2"
-            style={{backgroundColor: colors.background.primary}}
-            onPress={() => {
-              if (layoutMode === 1) {
-                setLayoutMode(2);
-              } else {
-                setLayoutMode(1);
-              }
-            }}>
-            <Image
-              source={layoutMode == 1 ? icons.layout1 : icons.layout2}
-              className="size-6"
-              tintColor={colors.text.primary}
-            />
-          </TouchableOpacity>
         </View>
       </View>
 
-      <MasonryList
-        className="self-stretch px-2"
-        data={notesToShow}
-        onRefresh={() => {
-          setSearch('');
-          setSortType(SortType.DATE_DESCENDING);
-          sortNotes(notesToShow, SortType.DATE_DESCENDING);
-          Keyboard.dismiss();
-        }}
-        numColumns={layoutMode === 1 ? 1 : 2}
-        key={layoutMode === 1 ? 'layout1' : 'layout2'}
-        renderItem={({item}) => (
-          <View className="px-2">
-            <NoteCard
-              note={item}
+      {isEditMode && (
+        <View className="flex flex-row items-center justify-center mb-1">
+          <TouchableOpacity
+            className="py-2 pb-3 shadow-md shadow-zinc-350 rounded-full w-1/4"
+            style={{backgroundColor: colors.background.primary}}
+            onPress={handleSelectAll}>
+            <Text
+              className="text-center text-base font-rubik-bold mt-1"
+              style={{
+                color: '#10b981',
+              }}>
+              {allSelected ? 'Deselect All' : 'Select All'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/** No result component */}
+
+      <ScrollView className="px-4 mb-20 mt-2">
+        {todosToShow.length === 0 && <NoResults isNote={false} />}
+        {todosToShow.map((item, index) => (
+          <ToDoCard
+            key={item.id}
+            todo={item}
+            isEditMode={isEditMode}
+            allSelected={allSelected}
+            searchValue={search}
+            refresh={() => {
+              fetchToDos();
+              setShowCompeletedToDos(true);
+            }}
+            onPress={() => {
+              if (!isEditMode) {
+                handleToDoPress((item as ToDo).id!);
+                return false;
+              } else {
+                if (!(item as ToDo).id) {
+                  return false;
+                }
+                if (idsToDelete.includes((item as ToDo).id)) {
+                  setIdsToDelete(
+                    idsToDelete.filter(id => id !== (item as ToDo).id),
+                  );
+                  return false;
+                } else {
+                  setIdsToDelete([...idsToDelete, (item as ToDo).id]);
+                  return true;
+                }
+              }
+            }}
+            onLongPress={(id: number) => {
+              setIsEditMode(true);
+              setIdsToDelete(prev => [...prev, id]);
+            }}
+          />
+        ))}
+        {compeletedToDos.length > 0 && (
+          <View className="flex flex-row justify-between items-center mb-4">
+            <TouchableOpacity
+              onPress={() => {
+                setShowCompeletedToDos(!showCompeletedToDos);
+              }}
+              className="w-5/6">
+              <View
+                className="flex flex-row justify-start items-center p-3 rounded-2xl"
+                style={{
+                  backgroundColor: colors.background.primary,
+                }}>
+                <Image
+                  source={showCompeletedToDos ? icons.arrowDown : icons.arrow}
+                  className="size-6"
+                  tintColor={colors.text.todo}
+                />
+                <Text
+                  className="ml-2 font-rubik-medium text-lg"
+                  style={{color: colors.text.secondary}}>
+                  Comepeleted
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <CustomAlert
+              message={'Are you sure to clean dones?'}
+              visible={isCompeletedAlertVisible}
+              onYes={handleDeleteCompeletedToDos}
+              onCancel={() => {
+                setIsCompeletedAlertVisible(false);
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                setIsCompeletedAlertVisible(true);
+              }}>
+              <View
+                className="flex flex-row justify-start items-center p-3 rounded-2xl"
+                style={{
+                  backgroundColor: colors.background.primary,
+                }}>
+                <Image
+                  source={icons.trash}
+                  tintColor={'#F75555'}
+                  className="size-6"
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+        {showCompeletedToDos &&
+          compeletedToDos.map((item, index) => (
+            <ToDoCard
+              key={item.id}
+              todo={item}
               isEditMode={isEditMode}
               allSelected={allSelected}
               searchValue={search}
+              refresh={() => {
+                fetchToDos();
+                setShowCompeletedToDos(true);
+              }}
               onPress={() => {
                 if (!isEditMode) {
-                  handleNoteCardPress((item as Note).id!);
+                  handleToDoPress((item as ToDo).id!);
                   return false;
                 } else {
-                  if (!(item as Note).id) {
+                  if (!(item as ToDo).id) {
                     return false;
                   }
-                  if (idsToDelete.includes((item as Note).id)) {
+                  if (idsToDelete.includes((item as ToDo).id)) {
                     setIdsToDelete(
-                      idsToDelete.filter(id => id !== (item as Note).id),
+                      idsToDelete.filter(id => id !== (item as ToDo).id),
                     );
                     return false;
                   } else {
-                    setIdsToDelete([...idsToDelete, (item as Note).id]);
+                    setIdsToDelete([...idsToDelete, (item as ToDo).id]);
                     return true;
                   }
                 }
@@ -356,36 +460,8 @@ function Notes() {
                 setIdsToDelete(prev => [...prev, id]);
               }}
             />
-          </View>
-        )}
-        keyExtractor={item => String(item.id)}
-        contentContainerClassName="pb-32"
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<NoResults isNote={true} />}
-        ListHeaderComponent={
-          <View className="px-5 mb-3">
-            {isEditMode && (
-              <View className="flex flex-row items-center justify-center">
-                <TouchableOpacity
-                  className="py-2 pb-3 shadow-md shadow-zinc-350 rounded-full w-1/3"
-                  style={{backgroundColor: colors.background.primary}}
-                  onPress={handleSelectAll}>
-                  <Text
-                    className="text-center text-base font-rubik-bold mt-1"
-                    style={{
-                      color:
-                        theme.name === 'Primary Light'
-                          ? colors.primary[300]
-                          : colors.primary[250],
-                    }}>
-                    {allSelected ? 'Deselect All' : 'Select All'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        }
-      />
+          ))}
+      </ScrollView>
 
       <Modal visible={sortModalVisible} transparent={true} animationType="fade">
         <TouchableWithoutFeedback
@@ -397,17 +473,14 @@ function Notes() {
               className="z-50 rounded-2xl pb-1 justify-center items-center border-2"
               style={{
                 backgroundColor: colors.background.primary,
-                borderColor: colors.background.secondary,
+                borderColor: colors.background.third,
               }}>
               <Text
                 className="text-lg text-gray-700 mt-3 pb-2 px-8 border-b mb-1"
                 style={{
                   backgroundColor: colors.background.primary,
                   color: colors.text.secondary,
-                  borderColor:
-                    theme.name === 'Primary Light'
-                      ? colors.primary[300]
-                      : colors.primary[250],
+                  borderColor: colors.text.todoV2,
                   width: '50%',
                   alignSelf: 'center',
                 }}>
@@ -416,11 +489,7 @@ function Notes() {
 
               <SortOption
                 title={'Date'}
-                color={
-                  theme.name === 'Primary Light'
-                    ? colors.primary[300]
-                    : colors.primary[250]
-                }
+                color={'#10b981'}
                 sortType={sortType}
                 sortTypeASC={SortType.DATE_ASCENDING}
                 sortTypeDESC={SortType.DATE_DESCENDING}
@@ -429,11 +498,7 @@ function Notes() {
               />
               <SortOption
                 title={'Alphabetic'}
-                color={
-                  theme.name === 'Primary Light'
-                    ? colors.primary[300]
-                    : colors.primary[250]
-                }
+                color={'#10b981'}
                 sortType={sortType}
                 sortTypeASC={SortType.ALPHABETICAL_ASCENDING}
                 sortTypeDESC={SortType.ALPHABETICAL_DESCENDING}
@@ -442,11 +507,7 @@ function Notes() {
               />
               <SortOption
                 title={'Length'}
-                color={
-                  theme.name === 'Primary Light'
-                    ? colors.primary[300]
-                    : colors.primary[250]
-                }
+                color={'#10b981'}
                 sortType={sortType}
                 sortTypeASC={SortType.LENGTH_ASCENDING}
                 sortTypeDESC={SortType.LENGTH_DESCENDING}
@@ -455,11 +516,7 @@ function Notes() {
               />
               <SortOption
                 title={'Favorite'}
-                color={
-                  theme.name === 'Primary Light'
-                    ? colors.primary[300]
-                    : colors.primary[250]
-                }
+                color={'#10b981'}
                 sortType={sortType}
                 sortTypeASC={SortType.FAVORITE_FIRST}
                 sortTypeDESC={SortType.FAVORITE_LAST}
@@ -474,8 +531,8 @@ function Notes() {
       {!isEditMode && (
         <View className="absolute bottom-28 right-5">
           <TouchableOpacity
-            className="w-16 h-16 bg-blue-500 rounded-3xl flex items-center justify-center" // shadow-lg shadow-zinc-400"
-            onPress={handleCreateNote}>
+            className="w-16 h-16 bg-emerald-500 rounded-3xl flex items-center justify-center" // shadow-lg shadow-zinc-400"
+            onPress={handleCreateToDo}>
             <Text
               className="font-rubik-light text-4xl "
               style={{color: colors.background.secondary}}>
@@ -490,12 +547,12 @@ function Notes() {
           className="absolute bottom-24 left-1/2 -translate-x-1/2 w-32 rounded-3xl border-2 p-3"
           style={{
             backgroundColor: colors.background.primary,
-            borderColor: colors.background.secondary,
+            borderColor: colors.background.third,
           }}>
           <CustomAlert
             message={'Are you sure to delete?'}
             visible={isAlertVisible}
-            onYes={handleDeleteNotes}
+            onYes={handleDeleteToDos}
             onCancel={() => {
               setIsAlertVisible(false);
             }}
@@ -527,4 +584,24 @@ function Notes() {
   );
 }
 
-export default Notes;
+export default ToDos;
+
+// () => {
+//   Alert.alert('Are you sure to delete?', '', [
+//     {
+//       text: 'Cancel',
+//       style: 'cancel',
+//     },
+//     {
+//       text: 'Yes',
+//       onPress: async () => {
+//         deleteToDosByIds(idsToDelete, userOnline),
+//           setIsEditMode(false);
+//         setIdsToDelete([]);
+//         setTimeout(() => {
+//           fetchToDos();
+//         }, 500);
+//       },
+//     },
+//   ]);
+// }

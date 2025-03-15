@@ -4,6 +4,8 @@ import {useNavigation} from '@react-navigation/native';
 import '../../global.css';
 import icons from '../constants/icons';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {useTheme} from '../themes/ThemeProvider';
+import {themes} from '../themes/themes';
 
 interface CustomHeaderProps {
   title: string;
@@ -24,26 +26,41 @@ const CustomHeader = ({
 }: CustomHeaderProps) => {
   const navigation = useNavigation();
 
+  const {theme, colors, setTheme} = useTheme();
+
   return (
     <SafeAreaView
-      className={`bg-${backgroundColor ? backgroundColor : 'white'}`}>
+      className={`border-b ${className}`}
+      style={{backgroundColor: colors.background.primary}}>
       <View
         // TO DO ERROR Burada önce renkleri bir kere kullanmam gerekiyor yoksa borderColor parametresi çalışmıyor
         // {`border-${
         //   borderColor ? borderColor : 'primary-300'
         // }`} ---> Not works
-        className={`flex flex-row items-center justify-between pb-5 border-b ${className} mt-5 mx-7`}>
+        className={`flex flex-row items-center justify-between pt-5 mx-7`}>
         {backArrowEnable && (
           <View className="flex flex-row">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              className="flex items-center justify-center h-7 w-7 bg-white rounded-full pr-8">
-              <Image source={icons.backArrow} className="size-7" />
+              className="flex items-center justify-center h-7 w-7 rounded-full pr-8">
+              <Image
+                source={icons.backArrow}
+                className="size-7"
+                tintColor={colors.text.primary}
+              />
             </TouchableOpacity>
           </View>
         )}
-        <Text className="text-xl font-rubik-semibold mr-2">{title}</Text>
-        <Image source={icon} className="size-6 mb-1" />
+        <Text
+          className="text-2xl font-rubik mr-2"
+          style={{color: colors.text.primary}}>
+          {title}
+        </Text>
+        <Image
+          source={icon}
+          className="size-6 mb-1"
+          tintColor={colors.text.primary}
+        />
       </View>
     </SafeAreaView>
   );

@@ -1,7 +1,7 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Notes from '../screens/notes/Notes';
 import Options from '../screens/settings/Settings';
-import ToDo from '../screens/todo/ToDo';
+import ToDos from '../screens/todos/ToDos';
 import React from 'react';
 import {Image, ImageSourcePropType, Text, View} from 'react-native';
 import icons from '../constants/icons';
@@ -15,6 +15,10 @@ import Language from '../screens/settings/Language';
 import Preferences from '../screens/settings/Preferences';
 import Profile from '../screens/settings/Profile';
 import Note from '../screens/notes/Note';
+import {useTheme} from '../themes/ThemeProvider';
+import {themes} from '../themes/themes';
+import ToDo from '../screens/todos/ToDo';
+
 const Tab = createBottomTabNavigator();
 
 const SettingsNativeStack =
@@ -22,45 +26,105 @@ const SettingsNativeStack =
 
 const NotesNativeStack = createNativeStackNavigator<NotesStackParamList>();
 
+const ToDosNativeStack = createNativeStackNavigator<ToDosStackParamList>();
+
 function NotesStack() {
+  const {theme, colors, setTheme} = useTheme();
+
   return (
-    <NotesNativeStack.Navigator initialRouteName="Notes">
-      <NotesNativeStack.Screen
-        name="Notes"
-        component={Notes}
-        options={{
-          headerShown: false,
-          header: () => (
-            <CustomHeader
-              title={'Notes'}
-              icon={icons.notes}
-              className="border-primary-300"
-            />
-          ),
-        }}
-      />
-      <NotesNativeStack.Screen
-        name="Note"
-        component={Note}
-        options={{
-          headerShown: false,
-          header: () => (
-            <CustomHeader
-              title={''}
-              icon={icons.notes}
-              className="border-primary-300"
-              backArrowEnable={true}
-            />
-          ),
-        }}
-      />
-    </NotesNativeStack.Navigator>
+    <>
+      <NotesNativeStack.Navigator
+        initialRouteName="Notes"
+        screenOptions={{
+          animation: 'none',
+        }}>
+        <NotesNativeStack.Screen
+          name="Notes"
+          component={Notes}
+          options={{
+            headerShown: false,
+            header: () => (
+              <CustomHeader
+                title={'Notes'}
+                icon={icons.notes}
+                className="border-primary-300"
+              />
+            ),
+          }}
+        />
+        <NotesNativeStack.Screen
+          name="Note"
+          component={Note}
+          options={{
+            headerShown: false,
+            header: () => (
+              <CustomHeader
+                title={''}
+                icon={icons.notes}
+                className="border-primary-300"
+                backArrowEnable={true}
+              />
+            ),
+          }}
+        />
+      </NotesNativeStack.Navigator>
+    </>
+  );
+}
+
+function ToDosStack() {
+  const {theme, colors, setTheme} = useTheme();
+
+  return (
+    <>
+      <ToDosNativeStack.Navigator
+        initialRouteName="ToDos"
+        screenOptions={{
+          animation: 'none',
+        }}>
+        <ToDosNativeStack.Screen
+          name="ToDos"
+          component={ToDos}
+          options={{
+            headerShown: false,
+            header: () => (
+              <CustomHeader
+                title={'ToDos'}
+                icon={icons.todo}
+                className="border-primary-300"
+              />
+            ),
+          }}
+        />
+        <ToDosNativeStack.Screen
+          name="ToDo"
+          component={ToDo}
+          options={{
+            headerShown: false,
+            header: () => (
+              <CustomHeader
+                title={''}
+                icon={icons.todo}
+                className="border-primary-300"
+                backArrowEnable={true}
+              />
+            ),
+          }}
+        />
+      </ToDosNativeStack.Navigator>
+    </>
   );
 }
 
 function SettingsStack() {
+  const {theme, colors, setTheme} = useTheme();
+
   return (
-    <SettingsNativeStack.Navigator initialRouteName="Settings">
+    <SettingsNativeStack.Navigator
+      initialRouteName="Settings"
+      screenOptions={{
+        animation: 'none',
+      }}>
       <SettingsNativeStack.Screen
         name="Settings"
         component={Settings}
@@ -156,36 +220,57 @@ const TabIcon = ({
   focused: boolean;
   icon: ImageSourcePropType;
   title: string;
-}) => (
-  <View className="flex-1 mt-3 flex flex-col items-center">
-    <Image
-      source={icon}
-      tintColor={focused ? '#0061FF' : '#666876'}
-      resizeMode="contain"
-      className="size-6"
-    />
-    <Text
-      className={`${
-        focused
-          ? 'text-primary-300 font-rubik-medium'
-          : 'text-black-200 font-rubik'
-      } text-xs w-full text-center mt-1`}>
-      {title}
-    </Text>
-  </View>
-);
+}) => {
+  const {theme, colors, setTheme} = useTheme();
+
+  return (
+    <View className="flex-1 mt-2 flex flex-col items-center">
+      <Image
+        source={icon}
+        tintColor={
+          focused
+            ? title === "To Do's"
+              ? '#10b981'
+              : theme.name === 'Primary Light'
+              ? colors.primary[300]
+              : colors.primary[250]
+            : colors.text.secondary
+        }
+        resizeMode="contain"
+        className="size-6"
+      />
+      <Text
+        className={`${
+          focused ? 'font-rubik-medium' : 'font-rubik'
+        } text-xs w-full text-center mt-1`}
+        style={{
+          color: focused
+            ? title === "To Do's"
+              ? '#10b981'
+              : theme.name === 'Primary Light'
+              ? colors.primary[300]
+              : colors.primary[250]
+            : colors.text.secondary,
+        }}>
+        {title}
+      </Text>
+    </View>
+  );
+};
 
 export function BottomNavigator() {
+  const {theme, colors, setTheme} = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: colors.background.primary,
+          borderColor: colors.background.primary,
           position: 'absolute',
-          borderTopColor: '#0061FF1A',
-          borderTopWidth: 1,
-          minHeight: 60,
+          minHeight: 80,
+          borderTopWidth: 0,
         },
       }}>
       <Tab.Screen
@@ -199,19 +284,20 @@ export function BottomNavigator() {
         }}
       />
       <Tab.Screen
-        name="To Do"
-        component={ToDo}
+        name="To Do's"
+        component={ToDosStack}
         options={{
+          headerShown: false,
           header: () => (
             <CustomHeader
-              title={'To Do'}
+              title={"To Do's"}
               icon={icons.todo}
               className="border-emerald-500"
             />
           ),
           title: 'To Do',
           tabBarIcon: ({focused}) => (
-            <TabIcon focused={focused} icon={icons.todo} title="To Do" />
+            <TabIcon focused={focused} icon={icons.todo} title="To Do's" />
           ),
         }}
       />

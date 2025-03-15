@@ -9,7 +9,7 @@ import Launch from '../screens/launch/Launch';
 import Login from '../screens/login/Login';
 import Notes from '../screens/notes/Notes';
 import CustomHeader from '../components/CustomHeader';
-import ToDo from '../screens/todo/ToDo';
+import ToDos from '../screens/todos/ToDos';
 import Options from '../screens/settings/Settings';
 import {BottomNavigator} from './BottomNavigation';
 import Settings from '../screens/settings/Settings';
@@ -18,6 +18,9 @@ import Security from '../screens/settings/Security';
 import Notifications from '../screens/settings/Reminders';
 import Language from '../screens/settings/Language';
 import Preferences from '../screens/settings/Preferences';
+import {useTheme} from '../themes/ThemeProvider';
+import {themes} from '../themes/themes';
+import {StatusBar} from 'react-native';
 
 const RootNativeStack = createNativeStackNavigator<RootStackParamList>();
 const AppNativeStack = createNativeStackNavigator<AppStackParamList>(); // This one works
@@ -30,22 +33,18 @@ function RootStack() {
         name="Notes"
         component={Notes}
         options={{
-          header: () => (
-            <CustomHeader title={'Notes'} backgroundColor={'blue-500'} />
-          ),
+          header: () => <CustomHeader title={'Notes'} />,
         }}
       />
       <RootNativeStack.Screen
-        name="ToDo"
-        component={ToDo}
+        name="ToDos"
+        component={ToDos}
         options={{
           // title: 'To Do',
           // headerStyle: {
           //   backgroundColor: '#b6f982',
           // },
-          header: () => (
-            <CustomHeader title={'To Do'} backgroundColor={'green-500'} />
-          ),
+          header: () => <CustomHeader title={'To Do'} />,
         }}
       />
       <RootNativeStack.Screen
@@ -55,9 +54,7 @@ function RootStack() {
           // headerStyle: {
           //   backgroundColor: '#ff6751',
           // },
-          header: () => (
-            <CustomHeader title={'Settings'} backgroundColor={'red-500'} />
-          ),
+          header: () => <CustomHeader title={'Settings'} />,
         }}
       />
     </RootNativeStack.Navigator>
@@ -66,7 +63,11 @@ function RootStack() {
 
 function AppStack() {
   return (
-    <AppNativeStack.Navigator initialRouteName="Launch">
+    <AppNativeStack.Navigator
+      initialRouteName="Launch"
+      screenOptions={{
+        animation: 'none',
+      }}>
       <AppNativeStack.Screen
         name="Launch"
         component={Launch}
@@ -93,8 +94,16 @@ function AppStack() {
 }
 
 export default function AppNavigator() {
+  const {theme, colors} = useTheme();
+
   return (
     <NavigationContainer>
+      <StatusBar
+        backgroundColor={colors.background.secondary}
+        barStyle={
+          theme.name === 'Primary Light' ? 'dark-content' : 'light-content'
+        }
+      />
       <AppStack />
     </NavigationContainer>
   );

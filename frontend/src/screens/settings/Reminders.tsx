@@ -1,21 +1,22 @@
 import {View, Text} from 'react-native';
 import React from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {useTheme} from '../../themes/ThemeProvider';
 
 const Reminders = () => {
+  const {colors} = useTheme();
   return (
-    <SafeAreaView className="h-full bg-white pb-32 px-7">
-      <View className="flex flex-row justify-center mt-5 mb-48 ">
-        <View className="flex flex-col items-center relative mt-5">
-          {
-            /* <Image
-                    // source={{uri: 'default-image-url'}}
-                    /* source={{uri: user?.photoURL || 'default-image-url'}} */
-            // TO DO kullanıcı profil foto ekleme özelliği eklenebilir
-            // className="size-44 relative rounded-full"> */
-          }
-          <Text className="text-2xl font-rubik-medium">Reminders</Text>
-        </View>
+    <SafeAreaView
+      className="h-full pb-32 px-5"
+      style={{backgroundColor: colors.background.secondary}}>
+      <View
+        className="flex flex-row justify-center p-4 rounded-2xl"
+        style={{backgroundColor: colors.background.primary}}>
+        <Text
+          className="text-xl font-rubik-medium"
+          style={{color: colors.text.primary}}>
+          Reminders
+        </Text>
       </View>
     </SafeAreaView>
   );

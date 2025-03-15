@@ -8,23 +8,21 @@ import {
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {
-  useFocusEffect,
-  useNavigation,
-  useTheme,
-} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {logout} from '../../api/authService';
 import {getUser} from '../../api/userService';
 import icons from '../../constants/icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Avatar} from 'react-native-elements';
 import CustomAvatar from './components/CustomAvatar';
+import {useTheme} from '../../themes/ThemeProvider';
+import CustomAlert from '../../components/CustomAlert';
 
 interface SettingsItemProps {
   icon: ImageSourcePropType;
   title: string;
   onPress?: () => void;
-  textStyle?: string;
+  textColor?: string;
   showArrow?: boolean;
 }
 
@@ -32,29 +30,46 @@ const SettingsItem = ({
   icon,
   title,
   onPress,
-  textStyle,
+  textColor,
   showArrow = true,
-}: SettingsItemProps) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className="flex flex-row items-center justify-between py-3">
-    <View className="flex flex-row items-center gap-3">
-      <Image source={icon} className="size-7" />
-      <Text className={`font-rubik-medium text-lg text-black-300 ${textStyle}`}>
-        {title}
-      </Text>
-    </View>
+}: SettingsItemProps) => {
+  const {colors} = useTheme();
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex flex-row items-center justify-between py-3">
+      <View className="flex flex-row items-center gap-3">
+        <Image
+          source={icon}
+          className="size-7"
+          tintColor={textColor ? textColor : colors.text.primary}
+        />
+        <Text
+          style={{color: textColor ? textColor : colors.text.primary}}
+          className={`font-rubik text-lg`}>
+          {title}
+        </Text>
+      </View>
 
-    {showArrow && <Image source={icons.rightArrow} className="size-5" />}
-  </TouchableOpacity>
-);
+      {showArrow && (
+        <Image
+          source={icons.rightArrow}
+          className="size-5"
+          tintColor={colors.text.primary}
+        />
+      )}
+    </TouchableOpacity>
+  );
+};
 
 const Settings = () => {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const appNavigation = useNavigation<AppScreenNavigationProp>();
-  const {colors, fonts} = useTheme();
+  const {colors} = useTheme();
 
   const [user, setUser] = useState<User | null>(null);
+
+  const [isAlertVisible, setIsAlertVisible] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -67,28 +82,21 @@ const Settings = () => {
   }, []);
 
   const handleLogout = async () => {
-    Alert.alert('Are you sure to logout?', '', [
-      {
-        text: 'Yes',
-        onPress: async () => {
-          await logout();
-          appNavigation.navigate('Launch');
-        },
-      },
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-    ]);
+    await logout();
+    appNavigation.navigate('Launch');
   };
 
   return (
-    <SafeAreaView className="h-full bg-white pb-32 px-7">
-      <View className="mt-24">
+    <SafeAreaView
+      className="h-full pb-32 px-5"
+      style={{backgroundColor: colors.background.secondary}}>
+      <View className="mt-12">
         <CustomAvatar username={user?.username} isUsernameShown={true} />
       </View>
 
-      <View className="flex flex-col mt-16">
+      <View
+        className="flex flex-col mt-16 px-4 py-2 rounded-2xl"
+        style={{backgroundColor: colors.background.primary}}>
         <SettingsItem
           icon={icons.person}
           title={'Profile'}
@@ -124,13 +132,23 @@ const Settings = () => {
             navigation.navigate('Language');
           }}
         />
-        <View className="ml-1 border-t mt-5 pt-5  border-primary-300">
+        <View className="ml-1 border-t mt-2 pt-1  border-primary-300">
+          <CustomAlert
+            message={'Are you sure to logout?'}
+            visible={isAlertVisible}
+            onYes={handleLogout}
+            onCancel={() => {
+              setIsAlertVisible(false);
+            }}
+          />
           <SettingsItem
             icon={icons.logout}
             title="Logout"
-            textStyle="text-danger"
+            textColor="#fd5353"
             showArrow={false}
-            onPress={handleLogout}
+            onPress={() => {
+              setIsAlertVisible(true);
+            }}
           />
         </View>
       </View>

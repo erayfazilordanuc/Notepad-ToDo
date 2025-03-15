@@ -1,6 +1,8 @@
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
-import icons from '../../../constants/icons';
+import icons from '../constants/icons';
+import {useTheme} from '../themes/ThemeProvider';
+import {themes} from '../themes/themes';
 
 enum SortType {
   DATE_ASCENDING,
@@ -15,6 +17,7 @@ enum SortType {
 
 interface SortProps {
   title: string;
+  color: string;
   sortType: SortType;
   sortTypeASC: SortType;
   sortTypeDESC: SortType;
@@ -24,14 +27,16 @@ interface SortProps {
 
 const SortOption = ({
   title,
+  color,
   sortType,
   sortTypeASC,
   sortTypeDESC,
   setSortType,
   setSortModalVisible,
 }: SortProps) => {
+  const {theme, colors, setTheme} = useTheme();
   return (
-    <View className="flex flex-row justify-center items-center pt-2 pb-1">
+    <View className="flex flex-row justify-center items-center rounded-2xl px-4 py-1">
       <TouchableOpacity
         onPress={() => {
           if (title === 'Alphabetic' || title === 'Favorite') {
@@ -44,16 +49,24 @@ const SortOption = ({
           }, 200);
         }}>
         <Text
-          className={`text-lg font-rubik p-2 text-center ${
-            sortType === sortTypeDESC || sortType === sortTypeASC
-              ? 'text-primary-300'
-              : 'text-gray-500'
-          }`}>
+          className={`text-lg font-rubik p-2 text-center`}
+          style={{
+            color:
+              sortType === sortTypeDESC || sortType === sortTypeASC
+                ? color
+                : colors.text.secondary,
+          }}>
           {title}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        className="pl-2"
+        className="pl-2 rounded-2xl p-2 ml-1"
+        style={{
+          backgroundColor:
+            color === '#10b981'
+              ? colors.background.third // colors.background.third is not working
+              : colors.background.secondary,
+        }}
         onPress={() => {
           setSortType(sortTypeASC);
           setTimeout(() => {
@@ -61,16 +74,17 @@ const SortOption = ({
           }, 200);
         }}>
         <Image
-          source={
-            sortType === sortTypeASC
-              ? icons.sortArrowUpSelected
-              : icons.sortArrowUp
-          }
+          source={icons.sortArrowUp}
           className="size-5"
+          tintColor={sortType === sortTypeASC ? color : colors.text.primary}
         />
       </TouchableOpacity>
       <TouchableOpacity
-        className="pl-2"
+        className="rounded-2xl p-2 ml-2"
+        style={{
+          backgroundColor:
+            color === '#10b981' ? colors.background.third : colors.background.secondary,
+        }}
         onPress={() => {
           setSortType(sortTypeDESC);
           setTimeout(() => {
@@ -78,12 +92,9 @@ const SortOption = ({
           }, 200);
         }}>
         <Image
-          source={
-            sortType === sortTypeDESC
-              ? icons.sortArrowDownSelected
-              : icons.sortArrowDown
-          }
+          source={icons.sortArrowDown}
           className="size-5"
+          tintColor={sortType === sortTypeDESC ? color : colors.text.primary}
         />
       </TouchableOpacity>
     </View>
