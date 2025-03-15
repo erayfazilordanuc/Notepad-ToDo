@@ -13,9 +13,6 @@
    
 ### Login Screen
 <img src="https://github.com/user-attachments/assets/99822ff3-61b4-4689-97bb-f6793ef4bf1d" width="250" />
-![notes_dark]()
-![notes_dark_layout_1]()
-![notes_dark_sorting]()![notes_dark_empty]()
 
 
 ### Notes Screen
