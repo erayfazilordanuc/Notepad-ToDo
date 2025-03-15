@@ -345,7 +345,9 @@ function ToDos() {
       {/** No result component */}
 
       <ScrollView className="px-4 mb-20 mt-2">
-        {todosToShow.length === 0 && <NoResults isNote={false} />}
+        {(todosToShow.length === 0 || compeletedToDos.length === 0) && (
+          <NoResults isNote={false} />
+        )}
         {todosToShow.map((item, index) => (
           <ToDoCard
             key={item.id}
