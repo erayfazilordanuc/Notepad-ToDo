@@ -371,7 +371,7 @@ function Notes() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={<NoResults isNote={true} />}
         ListHeaderComponent={
-          <View className="px-5 mb-3">
+          <View className="px-5 mb-2">
             {isEditMode && (
               <View className="flex flex-row items-center justify-center">
                 <TouchableOpacity
