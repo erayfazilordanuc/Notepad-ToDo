@@ -39,7 +39,10 @@ const CustomAlert = ({message, visible, onYes, onCancel}: CustomAlertProps) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={onYes}
+              onPress={() => {
+                onYes();
+                visible = true;
+              }}
               className="flex-1 p-2 bg-red-500 rounded-md items-center mx-1">
               <Text className="text-base font-bold text-white">Yes</Text>
             </TouchableOpacity>

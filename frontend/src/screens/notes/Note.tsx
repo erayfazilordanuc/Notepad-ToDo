@@ -118,7 +118,7 @@ const Note = () => {
   };
 
   const checkNote = async () => {
-    if (note && note.title.length === 0 && note?.content.length === 0) {
+    if (note && note.title.length === 0 && note.content.length === 0) {
       await deleteNoteById(note.id, userOnline);
     }
   };
@@ -177,11 +177,6 @@ const Note = () => {
       updateNote(note.id!, notePayload, userOnline);
       setPrevNote(note);
     }
-
-    // setSelection({
-    //   start: note?.content.length ? note.content.length : 0,
-    //   end: note?.content.length ? note.content.length : 0,
-    // });
   }, [note]);
 
   useEffect(() => {
@@ -207,20 +202,40 @@ const Note = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const backAction = () => {
-      checkNote();
-      navigation.goBack();
-      return true;
-    };
+  // useEffect(() => {
+  //   const backAction = async () => {
+  //     await checkNote().then(() => {
+  //     navigation.goBack()});
+  //   };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     () => {
+  //       backAction();
+  //       return true;
+  //     },
+  //   );
+
+  //   return () => backHandler.remove();
+  // }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener(
+      'beforeRemove',
+      async (event: any) => {
+        // İşlem bitmeden önce çıkışı engelle
+        event.preventDefault();
+
+        // Notu kontrol et ve işlem tamamlanınca geri dön
+        await checkNote();
+
+        // Manuel olarak geri dönüşü sağla
+        navigation.dispatch(event.data.action);
+      },
     );
 
-    return () => backHandler.remove();
-  }, []);
+    return unsubscribe;
+  }, [navigation, note]);
 
   const handleDeleteNote = async () => {
     setIsModalVisible(false);
@@ -380,8 +395,10 @@ const Note = () => {
                     <Text
                       selectable
                       className="text-lg font-rubik p-2 text-center"
-                      style={{color: colors.text.primary}}>
-                      <Text className="text-lg font-rubik-semibold">
+                      style={{color: colors.text.third}}>
+                      <Text
+                        className="text-lg font-rubik-semibold"
+                        style={{color: colors.text.primary}}>
                         Last Update
                       </Text>
                       {'\n'}

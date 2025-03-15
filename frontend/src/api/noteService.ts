@@ -48,7 +48,7 @@ export const createNote = async (
 
     note = {
       // TO DO bu idnin, online olunduğunda sunucuda veritabanında belirlenmesi lazım
-      id: maxNoteId ? maxNoteId.id! + 1 : 0,
+      id: maxNoteId ? maxNoteId.id! + 1 : 1,
       title: newNotePayload.title,
       content: newNotePayload.content,
       authorId: newNotePayload.authorId,

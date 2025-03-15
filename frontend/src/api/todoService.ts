@@ -20,12 +20,11 @@ export const createToDo = async (
     title: todoPayload?.title || '',
     content: todoPayload?.content || '',
     authorId: user.id,
-    isDone: todoPayload!.isDone,
+    isDone: todoPayload?.isDone || false,
     isFavorited: false,
   };
 
   let todo;
-
   const jsonToDos = await AsyncStorage.getItem('todos');
   let todos: ToDo[];
   if (jsonToDos) {
@@ -49,9 +48,10 @@ export const createToDo = async (
 
     todo = {
       // TO DO bu idnin, online olunduğunda sunucuda veritabanında belirlenmesi lazım
-      id: maxToDoId ? maxToDoId.id! + 1 : 0,
+      id: maxToDoId ? maxToDoId.id + 1 : 1,
       title: newToDoPayload.title,
       content: newToDoPayload.content,
+      isDone: newToDoPayload.isDone,
       authorId: newToDoPayload.authorId,
       isFavorited: newToDoPayload.isFavorited,
       createdAt: new Date(),
@@ -124,10 +124,10 @@ export const updateToDo = async (
   const user: User = JSON.parse(userData!);
 
   todoPayload = {
-    title: todoPayload!.title,
-    content: todoPayload!.content,
+    title: todoPayload?.title,
+    content: todoPayload?.content,
     authorId: user.id,
-    isDone: todoPayload!.isDone,
+    isDone: todoPayload?.isDone,
     isFavorited: todoPayload.isFavorited,
   };
 

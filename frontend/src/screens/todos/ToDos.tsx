@@ -242,6 +242,8 @@ function ToDos() {
     if (idsToDelete.length > 0) {
       deleteToDosByIds(idsToDelete, userOnline), setIsEditMode(false);
       setIdsToDelete([]);
+      setAllSelected(false);
+      setIsAlertVisible(false);
       setTimeout(() => {
         fetchToDos();
       }, 500);

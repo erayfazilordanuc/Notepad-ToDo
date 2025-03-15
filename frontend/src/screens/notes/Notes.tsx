@@ -214,6 +214,8 @@ function Notes() {
     if (idsToDelete.length > 0) {
       deleteNotesByIds(idsToDelete, userOnline), setIsEditMode(false);
       setIdsToDelete([]);
+      setAllSelected(false);
+      setIsAlertVisible(false);
       setTimeout(() => {
         fetchNotes();
       }, 500);

@@ -112,7 +112,8 @@ const ToDo = () => {
   useEffect(() => {
     if (!todo) return;
 
-    if (todo.id !== 0) {
+    console.log(todo);
+    if (true) {
       if (
         todo.title === prevToDo?.title &&
         todo.content === prevToDo?.content &&
@@ -129,7 +130,9 @@ const ToDo = () => {
         isFavorited: todo.isFavorited,
       };
 
-      updateToDo(todo.id!, todoPayload, userOnline);
+      console.log(todoPayload);
+
+      updateToDo(todo.id, todoPayload, userOnline);
       setPrevToDo(todo);
     }
   }, [todo]);
@@ -155,20 +158,41 @@ const ToDo = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const backAction = () => {
-      checkTodo();
-      navigation.goBack();
-      return true;
-    };
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     checkTodo();
+  //     setTimeout(() => {
+  //       navigation.goBack();
+  //     }, 100);
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
+  //     return true;
+  //   };
+
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction,
+  //   );
+
+  //   return () => backHandler.remove();
+  // }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener(
+      'beforeRemove',
+      async (event: any) => {
+        // İşlem bitmeden önce çıkışı engelle
+        event.preventDefault();
+
+        // Notu kontrol et ve işlem tamamlanınca geri dön
+        await checkTodo();
+
+        // Manuel olarak geri dönüşü sağla
+        navigation.dispatch(event.data.action);
+      },
     );
 
-    return () => backHandler.remove();
-  }, []);
+    return unsubscribe;
+  }, [navigation, todo]);
 
   const handleDeleteToDo = async () => {
     setIsModalVisible(false);
@@ -278,7 +302,7 @@ const ToDo = () => {
                         style={{color: colors.text.primary}}>
                         Id{' '}
                       </Text>
-                      {todo!.id ? todo!.id : ''}
+                      {todo?.id}
                     </Text>
                     <Text
                       selectable
@@ -318,8 +342,10 @@ const ToDo = () => {
                     <Text
                       selectable
                       className="text-lg font-rubik p-2 text-center"
-                      style={{color: colors.text.primary}}>
-                      <Text className="text-lg font-rubik-semibold">
+                      style={{color: colors.text.third}}>
+                      <Text
+                        className="text-lg font-rubik-semibold"
+                        style={{color: colors.text.primary}}>
                         Last Update
                       </Text>
                       {'\n'}
