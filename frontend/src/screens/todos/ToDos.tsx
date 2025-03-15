@@ -216,6 +216,12 @@ function ToDos() {
   };
 
   useEffect(() => {
+    const areAllSelected = idsToDelete.length === allToDos.length;
+    if (areAllSelected) setAllSelected(true);
+    if (idsToDelete.length === 0) setAllSelected(false);
+  }, [idsToDelete]);
+
+  useEffect(() => {
     sortToDos(todosToShow, setToDosToShow);
     sortToDos(compeletedToDos, setCompeletedToDos);
   }, [sortType]);
@@ -276,13 +282,13 @@ function ToDos() {
   return (
     <SafeAreaView
       className="h-full"
-      style={{backgroundColor: colors.background.third}}>
+      style={{backgroundColor: colors.background.secondary}}>
       <View
         className="pl-3 pr-4 pt-5"
-        style={{backgroundColor: colors.background.third}}>
+        style={{backgroundColor: colors.background.secondary}}>
         <View className="flex flex-row justify-center items-center mb-3">
           <TouchableOpacity
-            className="flex flex-row items-center rounded-full px-3 h-12 w-12 border border-emerald-500 ml-4"
+            className="flex flex-row items-center rounded-full px-3 h-12 w-12 border border-emerald-500 ml-2"
             style={{backgroundColor: colors.background.primary}}
             onPress={() => {
               setSortModalVisible(!sortModalVisible);
@@ -571,6 +577,7 @@ function ToDos() {
           <TouchableOpacity
             onPress={() => {
               setIsEditMode(false);
+              setAllSelected(false);
               setIdsToDelete(() => []);
             }}
             className="pt-2">

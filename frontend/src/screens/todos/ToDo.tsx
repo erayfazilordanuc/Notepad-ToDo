@@ -443,7 +443,7 @@ const ToDo = () => {
             paddingHorizontal: 6,
             paddingRight: 12,
             paddingTop: 6,
-            backgroundColor: colors.background.third,
+            backgroundColor: colors.background.secondary,
             height: windowHeight * 0.87,
             paddingBottom: keyboardHeight * 0.5,
           }}>

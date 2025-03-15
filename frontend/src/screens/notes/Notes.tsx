@@ -131,6 +131,12 @@ function Notes() {
   });
 
   useEffect(() => {
+    const areAllSelected = idsToDelete.length === allNotes.length;
+    if (areAllSelected) setAllSelected(true);
+    if (idsToDelete.length === 0) setAllSelected(false);
+  }, [idsToDelete]);
+
+  useEffect(() => {
     if (search && search.length > 0) {
       let searchedValue = search.trim().toLocaleLowerCase();
       let searchedParams = searchedValue.split(' ');
@@ -261,7 +267,7 @@ function Notes() {
         style={{backgroundColor: colors.background.secondary}}>
         <View className="flex flex-row justify-center items-center mb-3">
           <TouchableOpacity
-            className="flex flex-row items-center rounded-full px-3 h-12 w-12 border border-primary-250 ml-4"
+            className="flex flex-row items-center rounded-full px-3 h-12 w-12 border border-primary-250 ml-2"
             style={{backgroundColor: colors.background.primary}}
             onPress={() => {
               setSortModalVisible(!sortModalVisible);
@@ -514,6 +520,7 @@ function Notes() {
           <TouchableOpacity
             onPress={() => {
               setIsEditMode(false);
+              setAllSelected(false);
               setIdsToDelete(() => []);
             }}
             className="pt-2">

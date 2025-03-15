@@ -18,6 +18,7 @@ spring:
     # password: Bismillah
     url: jdbc:postgresql://localhost:5432/notepad
     username: postgres
+    password: 1234
   # cache:
   #   type: redis
   # data:
